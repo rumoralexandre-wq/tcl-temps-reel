@@ -1,0 +1,1159 @@
+/* =================================================================
+   V7 HOME FINAL — Refonte maquette officielle 2026-06-12
+   Référence : /opt/tcltempsreel/uploads/maquettes/
+   • IMG_0623.png     : iPhone portrait (référence visuelle)
+   • 34C23814...png   : document design V7 (mobile/tablette/desktop)
+   Moteur temps réel inchangé — UX/UI uniquement.
+================================================================= */
+
+:root {
+  --hf-panel-w: 400px;
+  --hf-panel-w-tablet: 360px;
+}
+
+/* =================================================================
+   1. CARTE — AUCUN GRADIENT, AUCUN ASSOMBRISSEMENT
+   IMG_0623 : tuiles OSM claires, zéro overlay, zéro gradient.
+   Supprimer TOUS les pseudo-éléments ::before/::after ajoutés.
+================================================================= */
+
+.v7-map-shell::before,
+.v7-map-shell::after {
+  display: none !important;
+  content: none !important;
+  background: transparent !important;
+}
+
+/* v7-map-dim transparent en home state (déjà dans v7.css mais on force) */
+body:not(.line-open):not(.traffic-open) .v7-map-dim {
+  background: transparent !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* =================================================================
+   2. TOPBAR MOBILE — STRUCTURE MAQUETTE
+   Layout : [☰] … [TCL Temps Réel — centré absolument] … [⊙ GPS]
+================================================================= */
+
+body:not(.line-open):not(.traffic-open) .v7-topbar {
+  position: absolute !important;
+  top: calc(env(safe-area-inset-top, 0px) + 12px) !important;
+  left: 0 !important;
+  right: 0 !important;
+  padding: 0 14px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  z-index: 50 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  pointer-events: none !important;
+}
+
+.v7-topbar-header {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  min-height: 44px !important;
+  pointer-events: none !important;
+  gap: 0 !important;
+}
+
+/* Hamburger — seul élément cliquable du header (44px = min Apple HIG) */
+.v7-hamburger {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  flex-shrink: 0 !important;
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 14px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  transition: background .14s, transform .12s !important;
+}
+.v7-hamburger:active {
+  transform: scale(.93) !important;
+}
+
+/* Logo centré absolument dans le header row */
+.v7-topbar-logo {
+  position: absolute !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  pointer-events: none !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  white-space: nowrap !important;
+}
+
+.v7-topbar-logo-mark {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 9px !important;
+  background: #e5282b !important;
+  color: #fff !important;
+  font-size: 12px !important;
+  font-weight: 1000 !important;
+  letter-spacing: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 3px 10px rgba(229,40,43,.32) !important;
+  flex-shrink: 0 !important;
+}
+
+.v7-topbar-logo-name {
+  font-size: 15px !important;
+  font-weight: 950 !important;
+  letter-spacing: -.2px !important;
+  white-space: nowrap !important;
+}
+
+/* Nom blanc sur fond carte sombre / sombre sur fond clair */
+@media (prefers-color-scheme: dark) {
+  .v7-topbar-logo-name {
+    color: rgba(248,250,252,.92) !important;
+    text-shadow: 0 1px 8px rgba(2,8,23,.60) !important;
+  }
+}
+@media (prefers-color-scheme: light) {
+  .v7-topbar-logo-name {
+    color: #0f172a !important;
+    text-shadow: 0 1px 4px rgba(255,255,255,.70) !important;
+  }
+}
+
+/* Desktop : masquer header row (sidebar gère le logo) */
+@media (min-width: 768px) {
+  .v7-topbar-header {
+    display: none !important;
+  }
+}
+
+/* =================================================================
+   3. SEARCH BAR — MAQUETTE
+   Pill blanche, ombre douce, placeholder gris, bouton "Ouvrir" sombre
+================================================================= */
+
+.v7-search {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  position: relative !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  pointer-events: auto !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Input pill */
+#q {
+  flex: 1 !important;
+  width: 100% !important;
+  height: 50px !important;
+  border-radius: 999px !important;
+  padding: 0 112px 0 20px !important;
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  outline: none !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  box-sizing: border-box !important;
+}
+
+/* Light mode — pill blanche */
+@media (prefers-color-scheme: light) {
+  #q {
+    background: rgba(255,255,255,.95) !important;
+    color: #0f172a !important;
+    border: 1px solid rgba(15,23,42,.08) !important;
+    box-shadow:
+      0 4px 20px rgba(15,23,42,.12),
+      inset 0 1px 0 rgba(255,255,255,.98) !important;
+    caret-color: #2563eb !important;
+  }
+  #q::placeholder {
+    color: rgba(15,23,42,.36) !important;
+    font-weight: 700 !important;
+  }
+  #q:focus {
+    border-color: rgba(37,99,235,.32) !important;
+    box-shadow:
+      0 4px 20px rgba(15,23,42,.14),
+      0 0 0 3px rgba(37,99,235,.14) !important;
+  }
+}
+
+/* Dark mode — pill sombre */
+@media (prefers-color-scheme: dark) {
+  #q {
+    background: rgba(8,18,44,.92) !important;
+    color: #f1f5f9 !important;
+    border: 1px solid rgba(56,130,255,.18) !important;
+    box-shadow:
+      0 8px 32px rgba(0,0,0,.48),
+      inset 0 1px 0 rgba(255,255,255,.06) !important;
+    caret-color: #38bdf8 !important;
+  }
+  #q::placeholder {
+    color: rgba(248,250,252,.36) !important;
+    font-weight: 700 !important;
+  }
+  #q:focus {
+    border-color: rgba(56,189,248,.40) !important;
+    box-shadow:
+      0 8px 32px rgba(0,0,0,.52),
+      0 0 0 3px rgba(56,189,248,.16) !important;
+  }
+}
+
+/* Bouton "Ouvrir" — sombre dans tous les modes */
+.v7-open-search {
+  position: absolute !important;
+  right: 6px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  height: 38px !important;
+  padding: 0 16px !important;
+  border-radius: 999px !important;
+  border: 0 !important;
+  font-size: 14px !important;
+  font-weight: 950 !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  transition: background .14s, transform .12s !important;
+}
+
+@media (prefers-color-scheme: light) {
+  .v7-open-search {
+    background: rgba(15,23,42,.85) !important;
+    color: #f8fafc !important;
+  }
+  .v7-open-search:active {
+    background: #0f172a !important;
+    transform: translateY(-50%) scale(.95) !important;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .v7-open-search {
+    background: rgba(255,255,255,.12) !important;
+    color: #f1f5f9 !important;
+    border: 1px solid rgba(255,255,255,.14) !important;
+  }
+  .v7-open-search:active {
+    background: rgba(255,255,255,.20) !important;
+    transform: translateY(-50%) scale(.95) !important;
+  }
+}
+
+/* =================================================================
+   4. HAMBURGER — MAQUETTE
+   Light : fond blanc, lignes sombres
+   Dark  : fond sombre verre, lignes claires
+================================================================= */
+
+@media (prefers-color-scheme: light) {
+  .v7-hamburger {
+    background: rgba(255,255,255,.94) !important;
+    border: 1px solid rgba(15,23,42,.10) !important;
+    color: #1e293b !important;
+    box-shadow: 0 2px 10px rgba(15,23,42,.09) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  .v7-hamburger {
+    background: rgba(8,18,44,.80) !important;
+    border: 1px solid rgba(56,130,255,.20) !important;
+    color: #f1f5f9 !important;
+    box-shadow: 0 4px 14px rgba(0,0,0,.32) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+  }
+}
+
+/* =================================================================
+   5. RECENTER / GPS BUTTON — MAQUETTE
+   Inactif : blanc (light) / sombre (dark)
+   Actif   : gradient bleu vif (tous modes)
+================================================================= */
+
+.v7-recenter-map {
+  position: absolute !important;
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 999px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: background .2s, box-shadow .2s, transform .12s !important;
+}
+.v7-recenter-map:active {
+  transform: scale(.93) !important;
+}
+
+@media (prefers-color-scheme: light) {
+  .v7-recenter-map:not(.active) {
+    background: rgba(255,255,255,.96) !important;
+    border: 1px solid rgba(15,23,42,.10) !important;
+    color: #1d4ed8 !important;
+    box-shadow: 0 4px 16px rgba(15,23,42,.10) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  .v7-recenter-map:not(.active) {
+    background: rgba(8,18,44,.86) !important;
+    border: 1px solid rgba(56,130,255,.28) !important;
+    color: #7dd3fc !important;
+    box-shadow: 0 6px 20px rgba(0,0,0,.40) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+  }
+}
+
+/* Actif — bleu vif (correspond au GPS actif dans IMG_0623) */
+.v7-recenter-map.active {
+  background: linear-gradient(135deg, #1d4ed8, #0ea5e9) !important;
+  border-color: transparent !important;
+  color: #fff !important;
+  box-shadow: 0 6px 20px rgba(14,165,233,.40), 0 0 0 3px rgba(14,165,233,.18) !important;
+}
+
+/* Positions par breakpoint */
+@media (max-width: 767px) {
+  body:not(.line-open):not(.traffic-open) .v7-recenter-map {
+    top: calc(env(safe-area-inset-top, 0px) + 14px) !important;
+    right: 14px !important;
+    bottom: auto !important;
+    left: auto !important;
+    z-index: 51 !important;
+  }
+}
+@media (min-width: 768px) and (max-width: 1199px) {
+  body:not(.line-open):not(.traffic-open) .v7-recenter-map {
+    right: 20px !important;
+    left: auto !important;
+    top: calc(env(safe-area-inset-top, 0px) + 30px) !important;
+  }
+}
+@media (min-width: 1200px) {
+  body:not(.line-open):not(.traffic-open) .v7-recenter-map {
+    right: 28px !important;
+    left: auto !important;
+    top: calc(env(safe-area-inset-top, 0px) + 34px) !important;
+  }
+}
+
+/* =================================================================
+   7. SECTION SHEETS — BOTTOM SHEETS (mobile) / RIGHT PANEL (desktop)
+================================================================= */
+
+/* Base : toujours rendu, off-screen par défaut */
+.v7-section-sheet {
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  transition:
+    transform .38s cubic-bezier(.32,.72,0,1),
+    opacity .28s ease,
+    visibility 0s linear .38s !important;
+}
+.v7-section-sheet.open {
+  pointer-events: auto !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  transition:
+    transform .38s cubic-bezier(.32,.72,0,1),
+    opacity .28s ease,
+    visibility 0s linear 0s !important;
+}
+
+/* Mobile (<768px) : bottom sheet */
+@media (max-width: 767px) {
+  .v7-section-sheet {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    height: calc(100dvh - 50px) !important;
+    transform: translateY(106%) !important;
+    border-radius: 22px 22px 0 0 !important;
+    z-index: 52 !important;
+    margin: 0 !important;
+  }
+  .v7-section-sheet.open {
+    transform: translateY(0) !important;
+  }
+}
+
+/* Tablette portrait (768-1023px portrait) : bottom sheet depuis sidebar */
+@media (min-width: 768px) and (max-width: 1023px) and (orientation: portrait) {
+  .v7-section-sheet {
+    position: fixed !important;
+    left: var(--sidebar-w, 220px) !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    height: calc(100dvh - 48px) !important;
+    transform: translateY(106%) !important;
+    border-radius: 22px 22px 0 0 !important;
+    z-index: 52 !important;
+    margin: 0 !important;
+  }
+  .v7-section-sheet.open {
+    transform: translateY(0) !important;
+  }
+}
+
+/* Tablette paysage : right panel */
+@media (min-width: 768px) and (orientation: landscape) {
+  .v7-section-sheet {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    right: 0 !important;
+    left: auto !important;
+    width: var(--hf-panel-w-tablet) !important;
+    height: auto !important;
+    transform: translateX(106%) !important;
+    border-radius: 0 !important;
+    z-index: 48 !important;
+    overflow-y: auto !important;
+    margin: 0 !important;
+  }
+  .v7-section-sheet.open {
+    transform: translateX(0) !important;
+  }
+}
+
+/* Desktop : right panel large */
+@media (min-width: 1200px) {
+  .v7-section-sheet {
+    width: var(--hf-panel-w) !important;
+    transform: translateX(106%) !important;
+    z-index: 48 !important;
+  }
+  .v7-section-sheet.open {
+    transform: translateX(0) !important;
+  }
+}
+
+/* Sheet handle */
+.v7-sheet-handle {
+  flex-shrink: 0;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.v7-sheet-handle::before {
+  content: "";
+  width: 34px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(100,116,139,.28);
+}
+@media (prefers-color-scheme: light) {
+  .v7-sheet-handle::before { background: rgba(15,23,42,.16); }
+}
+@media (min-width: 768px) and (orientation: landscape) {
+  .v7-sheet-handle { display: none; }
+}
+@media (min-width: 1200px) {
+  .v7-sheet-handle { display: none; }
+}
+
+/* Sheet header */
+.v7-section-sheet .v7-detail-head {
+  flex-shrink: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 8px 16px 14px !important;
+  margin-bottom: 0 !important;
+  border-bottom: 1px solid rgba(148,163,184,.10) !important;
+  background: transparent !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 5 !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+}
+.v7-section-sheet .v7-detail-head h2 {
+  flex: 1 !important;
+  font-size: 21px !important;
+  font-weight: 1000 !important;
+  letter-spacing: -.55px !important;
+  margin: 0 !important;
+  color: inherit !important;
+}
+
+/* Bouton retour — cercle premium (44px = min Apple HIG) */
+.v7-section-back {
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  border-radius: 999px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  border: 1px solid rgba(148,163,184,.15) !important;
+  background: rgba(255,255,255,.08) !important;
+  cursor: pointer !important;
+  color: inherit !important;
+  transition: background .14s, transform .12s !important;
+}
+.v7-section-back:active {
+  transform: scale(.92) !important;
+}
+@media (prefers-color-scheme: light) {
+  .v7-section-back {
+    background: rgba(15,23,42,.06) !important;
+    border-color: rgba(15,23,42,.10) !important;
+    color: #1e293b !important;
+  }
+}
+
+/* Sheet content */
+#lignesContent,
+#autourContent,
+#favorisContent,
+#reglagensContent {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px 20px calc(env(safe-area-inset-bottom, 0px) + 24px);
+}
+
+/* Sheet backgrounds */
+.v7-section-sheet {
+  background: rgba(7,14,34,.97) !important;
+  border: 1px solid rgba(56,120,255,.12) !important;
+  box-shadow: 0 -8px 40px rgba(0,0,0,.58), inset 0 1px 0 rgba(255,255,255,.04) !important;
+}
+@media (prefers-color-scheme: light) {
+  .v7-section-sheet {
+    background: rgba(248,250,252,.99) !important;
+    border-color: rgba(15,23,42,.08) !important;
+    box-shadow: 0 -3px 24px rgba(15,23,42,.09) !important;
+    color: #0f172a !important;
+  }
+  .v7-section-sheet .v7-detail-head {
+    border-bottom-color: rgba(15,23,42,.08) !important;
+  }
+  .v7-section-sheet .v7-detail-head h2 { color: #0f172a !important; }
+}
+
+/* Overlay / scrim derrière les sheets (mobile) */
+.v7-sheet-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 51;
+  background: rgba(2,6,23,.52);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  cursor: pointer;
+}
+body.lignes-open .v7-sheet-overlay,
+body.autour-open .v7-sheet-overlay,
+body.favoris-open .v7-sheet-overlay,
+body.reglages-open .v7-sheet-overlay {
+  display: block;
+}
+@media (min-width: 768px) and (orientation: landscape),
+       (min-width: 1200px) {
+  .v7-sheet-overlay { display: none !important; }
+}
+
+/* =================================================================
+   8. DESKTOP — TOPBAR & WIDGET AJUSTÉS QUAND PANNEAU DROIT OUVERT
+================================================================= */
+
+@media (min-width: 768px) and (max-width: 1199px) and (orientation: landscape) {
+  body.lignes-open .v7-topbar,
+  body.autour-open .v7-topbar,
+  body.favoris-open .v7-topbar,
+  body.reglages-open .v7-topbar { right: var(--hf-panel-w-tablet) !important; }
+}
+@media (min-width: 1200px) {
+  body.lignes-open .v7-topbar,
+  body.autour-open .v7-topbar,
+  body.favoris-open .v7-topbar,
+  body.reglages-open .v7-topbar { right: var(--hf-panel-w) !important; }
+}
+
+/* Pas d'assombrissement carte avec panneau droit */
+@media (min-width: 768px) and (orientation: landscape),
+       (min-width: 1200px) {
+  body.lignes-open .v7-map-dim,
+  body.autour-open .v7-map-dim,
+  body.favoris-open .v7-map-dim,
+  body.reglages-open .v7-map-dim { background: transparent !important; }
+}
+
+/* =================================================================
+   9. SIDEBAR — ICÔNES PREMIUM
+================================================================= */
+
+.v7-nav-item.active .v7-nav-icon {
+  background: #e5282b !important;
+  color: #fff !important;
+  box-shadow: 0 4px 12px rgba(229,40,43,.30) !important;
+}
+.v7-nav-item:not(.active) .v7-nav-icon {
+  background: rgba(255,255,255,.06) !important;
+  color: rgba(248,250,252,.52) !important;
+}
+
+@media (prefers-color-scheme: light) {
+  .v7-sidebar {
+    background: rgba(255,255,255,.99) !important;
+    box-shadow: 3px 0 20px rgba(15,23,42,.07), 1px 0 0 rgba(15,23,42,.05) !important;
+  }
+  .v7-sidebar-brand-name { color: #0f172a !important; font-weight: 1000 !important; }
+  .v7-sidebar-header { border-bottom-color: rgba(15,23,42,.07) !important; }
+  .v7-nav-item { color: #334155 !important; }
+  .v7-nav-item:hover { background: rgba(229,40,43,.05) !important; color: #1e293b !important; }
+  .v7-nav-item.active {
+    background: rgba(229,40,43,.08) !important;
+    border-color: rgba(229,40,43,.18) !important;
+    color: #be1a1d !important;
+    box-shadow: 0 2px 10px rgba(229,40,43,.08) !important;
+  }
+  .v7-nav-item.active .v7-nav-icon { background: #e5282b !important; color: #fff !important; }
+  .v7-nav-item:not(.active) .v7-nav-icon { background: rgba(15,23,42,.05) !important; color: rgba(15,23,42,.40) !important; }
+  .v7-nav-reglages { border-top-color: rgba(15,23,42,.07) !important; }
+  .v7-sidebar-footer { color: rgba(15,23,42,.28) !important; border-top-color: rgba(15,23,42,.05) !important; }
+}
+
+/* =================================================================
+   10. SECTION CONTENT — INNER PREMIUM
+================================================================= */
+
+@media (prefers-color-scheme: light) {
+  .v7-ligne-pill {
+    background: rgba(255,255,255,.84) !important;
+    border-color: rgba(15,23,42,.07) !important;
+    box-shadow: 0 1px 6px rgba(15,23,42,.05) !important;
+  }
+  .v7-fav-row {
+    background: rgba(255,255,255,.88) !important;
+    border: 1px solid rgba(15,23,42,.07) !important;
+    box-shadow: 0 1px 6px rgba(15,23,42,.04) !important;
+  }
+  .v7-reglage-row {
+    background: rgba(255,255,255,.88) !important;
+    border: 1px solid rgba(15,23,42,.07) !important;
+    box-shadow: 0 1px 4px rgba(15,23,42,.04) !important;
+  }
+  .v7-reglage-row.danger {
+    background: rgba(254,226,226,.84) !important;
+    border-color: rgba(220,38,38,.14) !important;
+  }
+}
+
+/* =========================================================
+   V7 SOURCE PROPRE — ACCUEIL / WIDGET / LIGNE / THEME
+   Bloc unique après nettoyage des patchs récents.
+========================================================= */
+
+/* Ancien widget définitivement neutralisé */
+.v7-apple-widget,
+#v7SmartWidget{
+  display:none!important;
+}
+
+/* Menu : Accueil et Autour de moi supprimés */
+.v7-sidebar .v7-nav-item[data-section="home"],
+.v7-sidebar .v7-nav-item[data-section="autour"]{
+  display:none!important;
+}
+
+/* Widget accueil */
+.v7-home-nearby-card{
+  display:none;
+}
+
+body.v7-home:not(.line-open):not(.traffic-open):not(.lignes-open):not(.favoris-open):not(.reglages-open):not(.horaires-open):not(.vehicle-portrait-open):not(.sidebar-open) .v7-home-nearby-card{
+  display:block!important;
+  position:fixed!important;
+  left:50%!important;
+  right:auto!important;
+  bottom:calc(env(safe-area-inset-bottom,0px) + 18px)!important;
+  transform:translateX(-50%)!important;
+  width:calc(100vw - 36px)!important;
+  max-width:520px!important;
+  z-index:1600!important;
+  padding:18px!important;
+  border-radius:24px!important;
+  background:rgba(255,255,255,.94)!important;
+  border:1px solid rgba(15,23,42,.08)!important;
+  box-shadow:0 22px 60px rgba(15,23,42,.18)!important;
+  backdrop-filter:blur(24px) saturate(1.25)!important;
+  -webkit-backdrop-filter:blur(24px) saturate(1.25)!important;
+  color:#0f172a!important;
+}
+
+.v7-home-nearby-head{
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:space-between!important;
+  gap:12px!important;
+  margin:0 0 12px!important;
+}
+
+.v7-home-nearby-head h2{
+  margin:0!important;
+  font-size:22px!important;
+  line-height:1.1!important;
+  font-weight:950!important;
+  letter-spacing:-.04em!important;
+  color:#0f172a!important;
+}
+
+.v7-home-nearby-head p{
+  margin:5px 0 0!important;
+  font-size:13px!important;
+  font-weight:750!important;
+  color:#64748b!important;
+}
+
+#v7HomeNearbyClose{
+  width:32px!important;
+  height:32px!important;
+  border:0!important;
+  border-radius:999px!important;
+  background:rgba(15,23,42,.06)!important;
+  color:#475569!important;
+  font-size:22px!important;
+  line-height:1!important;
+}
+
+.v7-home-nearby-card.is-collapsed{
+  width:auto!important;
+  min-width:178px!important;
+  max-width:calc(100vw - 40px)!important;
+  padding:12px 18px!important;
+  border-radius:999px!important;
+  cursor:pointer!important;
+}
+
+.v7-home-nearby-card.is-collapsed .v7-home-nearby-head{
+  margin:0!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+
+.v7-home-nearby-card.is-collapsed .v7-home-nearby-head h2{
+  font-size:15px!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+}
+
+.v7-home-nearby-card.is-collapsed .v7-home-nearby-head h2::before{
+  content:"📍 ";
+}
+
+.v7-home-nearby-card.is-collapsed .v7-home-nearby-head p,
+.v7-home-nearby-card.is-collapsed .v7-home-nearby-list,
+.v7-home-nearby-card.is-collapsed .v7-home-nearby-all,
+.v7-home-nearby-card.is-collapsed #v7HomeNearbyClose{
+  display:none!important;
+}
+
+/* Vue ligne : header non sticky, il part au scroll */
+body.line-open .v7-detail-head{
+  position:relative!important;
+  top:auto!important;
+  z-index:1!important;
+}
+
+/* Vue ligne : on stabilise sans casser la timeline */
+body.line-open #lineView.open{
+  background:var(--v7-page-bg, #f6f9ff)!important;
+  color:var(--v7-text, #0f172a)!important;
+  padding-top:calc(env(safe-area-inset-top,0px) + 72px)!important;
+}
+
+body.line-open .live-card{
+  background:rgba(255,255,255,.86)!important;
+  color:#0f172a!important;
+  border:1px solid rgba(148,163,184,.18)!important;
+  box-shadow:0 18px 44px rgba(15,23,42,.10)!important;
+}
+
+body.line-open .dest,
+body.line-open .tcl-timeline-v3-stop.active .tcl-timeline-v3-name{
+  color:#0f172a!important;
+}
+
+body.line-open .tcl-timeline-v3-name{
+  color:#64748b!important;
+}
+
+@media (prefers-color-scheme:dark){
+  body.line-open #lineView.open{
+    background:#07111f!important;
+    color:#f8fafc!important;
+  }
+
+  body.line-open .live-card{
+    background:rgba(15,23,42,.90)!important;
+    color:#f8fafc!important;
+    border-color:rgba(56,189,248,.20)!important;
+    box-shadow:0 22px 60px rgba(0,0,0,.34)!important;
+  }
+
+  body.line-open .dest,
+  body.line-open .tcl-timeline-v3-stop.active .tcl-timeline-v3-name{
+    color:#f8fafc!important;
+  }
+
+  body.line-open .tcl-timeline-v3-name{
+    color:#94a3b8!important;
+  }
+}
+
+
+/* =========================================================
+   V7 FIX SOURCE — WIDGET CENTRE + LIGNE CLEAN
+========================================================= */
+
+/* Widget réduit : centré réellement, sans left/right contradictoires */
+body.v7-home .v7-home-nearby-card.is-collapsed{
+  position:fixed!important;
+  left:50%!important;
+  right:auto!important;
+  transform:translateX(-50%)!important;
+  width:max-content!important;
+  min-width:178px!important;
+  max-width:calc(100vw - 40px)!important;
+  bottom:calc(env(safe-area-inset-bottom,0px) + 18px)!important;
+  padding:12px 18px!important;
+  border-radius:999px!important;
+  text-align:center!important;
+}
+
+/* Vue ligne : le header ne colle plus à la timeline au scroll */
+body.line-open .v7-detail-head{
+  position:relative!important;
+  top:auto!important;
+  margin-bottom:18px!important;
+}
+
+/* Vue ligne : on arrête les mélanges clair/sombre forcés */
+body.line-open #lineView.open{
+  background:linear-gradient(180deg,#f8fbff,#eef6ff)!important;
+  color:#0f172a!important;
+}
+
+body.line-open .live-card{
+  background:rgba(255,255,255,.92)!important;
+  color:#0f172a!important;
+  border:1px solid rgba(100,116,139,.18)!important;
+  box-shadow:0 18px 46px rgba(15,23,42,.12)!important;
+}
+
+body.line-open .dest{
+  color:#0f172a!important;
+}
+
+@media (prefers-color-scheme:dark){
+  body.line-open #lineView.open{
+    background:#07111f!important;
+    color:#f8fafc!important;
+  }
+
+  body.line-open .live-card{
+    background:rgba(15,23,42,.92)!important;
+    color:#f8fafc!important;
+    border-color:rgba(56,189,248,.22)!important;
+  }
+
+  body.line-open .dest{
+    color:#f8fafc!important;
+  }
+}
+
+/* ── SIDEBAR CLOSE — 44px tap target (Apple HIG) ── */
+.v7-sidebar-close {
+  width:  44px !important;
+  height: 44px !important;
+  border-radius: 14px !important;
+}
+
+/* =========================================================
+   V7 SAFARI FULL-BLEED SCROLL — iPhone Safari behavior
+   Objectif tcl.fr : carte fond plein écran, page scrollable,
+   barre URL Safari peut se rétracter au scroll.
+   FICHIER GAGNANT — chargé en dernier, règles finales.
+========================================================= */
+html{
+  width:100%;
+  min-width:100%;
+  min-height:100%;
+  height:auto!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  background:#f8fbff!important;
+  -webkit-text-size-adjust:100%;
+}
+body{
+  width:100%;
+  min-width:100%;
+  /* +180px donne du scroll à Safari pour rétracter sa barre URL */
+  min-height:calc(100dvh + 180px)!important;
+  height:auto!important;
+  margin:0!important;
+  padding:0!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  background:#f8fbff!important;
+  overscroll-behavior-y:none;
+}
+body.v7-home{
+  min-height:calc(100dvh + 180px)!important;
+}
+/* La carte devient le fond plein écran, bord à bord, sans safe-area */
+.v7-app,
+.v7-map,
+.v7-map-shell,
+.v7-map-wrap,
+#map,
+#v7Map,
+.leaflet-container{
+  position:fixed!important;
+  inset:0!important;
+  top:0!important;
+  right:0!important;
+  bottom:0!important;
+  left:0!important;
+  width:100vw!important;
+  height:100dvh!important;
+  min-height:100dvh!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  border-radius:0!important;
+  overflow:hidden!important;
+  background:#f8fbff!important;
+}
+/* Desktop : la carte laisse la place à la sidebar permanente */
+@media(min-width:768px){
+  .v7-map-shell{
+    left:var(--sidebar-w,260px)!important;
+  }
+}
+/* Topbar centré, safe-area */
+.v7-topbar{
+  position:fixed!important;
+  top:max(18px, env(safe-area-inset-top,18px))!important;
+  z-index:60!important;
+}
+/* Desktop : topbar commence après la sidebar */
+@media(min-width:768px){
+  .v7-topbar{
+    left:var(--sidebar-w,260px)!important;
+    transform:none!important;
+  }
+}
+/* Hamburger — mobile uniquement, coin haut-gauche */
+.v7-hamburger{
+  position:fixed!important;
+  top:max(18px, env(safe-area-inset-top,18px))!important;
+  left:max(18px, env(safe-area-inset-left,18px))!important;
+  z-index:70!important;
+  width:44px!important;
+  height:44px!important;
+}
+/* GPS — coin haut-droit */
+.v7-recenter-map,
+#v7LocateBtn,
+#locateBtn,
+#recenterMap{
+  position:fixed!important;
+  top:max(18px, env(safe-area-inset-top,18px))!important;
+  right:max(18px, env(safe-area-inset-right,18px))!important;
+  z-index:70!important;
+}
+/* Widget bas — safe-area bottom */
+#v7HomeNearbyCard{
+  position:fixed!important;
+  bottom:max(18px, env(safe-area-inset-bottom,18px))!important;
+  z-index:65!important;
+}
+/* Pseudo-élément scroll : donne du contenu à Safari pour qu'il
+   puisse rétracter sa barre URL (invisible, sans effet visuel) */
+body.v7-home::after{
+  content:"";
+  display:block;
+  height:180px;
+  width:1px;
+  pointer-events:none;
+  opacity:0;
+  position:relative;
+  z-index:-1;
+}
+/* Panneaux ouverts : pas besoin du +180px de scroll */
+body.line-open,
+body.traffic-open,
+body.horaires-open,
+body.lignes-open,
+body.favoris-open,
+body.reglages-open,
+body.autour-open,
+body.vehicle-portrait-open,
+body.sidebar-open{
+  min-height:100dvh!important;
+  overflow:hidden!important;
+}
+
+/* =========================================================
+   V7 REMOVE SEARCH BAR — FINAL CSS WINNER
+========================================================= */
+
+.v7-search,
+.v7-search-shell,
+.v7-searchbar,
+.v7-search-marquee,
+.v7-search-suggest,
+.v7-open-search,
+#q,
+#openSearch,
+#searchBox,
+#searchInput,
+#v7Search{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+
+
+/* =========================================================
+   V7 TRAFFIC BADGE REAL COUNT — FINAL WINNER
+========================================================= */
+
+#v7NavBadgeTrafic{
+  min-width:28px!important;
+  width:auto!important;
+  padding:0 8px!important;
+  white-space:nowrap!important;
+}
+
+
+
+/* =========================================================
+   V7 BUS UI SOURCE UNIQUE — CSS ONLY
+   Moteur timeline intact : positions left/top inline conservées.
+========================================================= */
+
+body.line-open .live-card,
+body.vehicle-portrait-open .vehicle-portrait-card.live-card{
+  border-radius:30px!important;
+  padding:18px!important;
+  overflow:hidden!important;
+}
+
+body.line-open .live-top,
+body.vehicle-portrait-open .vehicle-portrait-topline{
+  align-items:center!important;
+  gap:12px!important;
+}
+
+body.line-open .bus-pill,
+body.vehicle-portrait-open .vehicle-portrait-card .bus-pill{
+  border-radius:20px!important;
+  padding:9px 13px!important;
+  font-weight:1000!important;
+}
+
+body.line-open .dest,
+body.vehicle-portrait-open .vehicle-portrait-card .dest{
+  font-size:clamp(20px,4vw,26px)!important;
+  line-height:1.08!important;
+  letter-spacing:-.65px!important;
+  margin:12px 0 10px!important;
+}
+
+body.line-open .bus-state,
+body.vehicle-portrait-open .vehicle-portrait-card .bus-state,
+body.vehicle-portrait-open .vehicle-portrait-card .vehicle-portrait-state{
+  padding:8px 12px!important;
+  border-radius:18px!important;
+  font-size:14px!important;
+  line-height:1.15!important;
+  font-weight:950!important;
+}
+
+body.line-open .tcl-timeline-v3{
+  height:140px!important;
+  margin-top:28px!important;
+}
+
+body.line-open .tcl-timeline-v3-name{
+  font-size:11.5px!important;
+  line-height:1.12!important;
+  max-width:78px!important;
+}
+
+body.vehicle-portrait-open .vehicle-timeline-v-name{
+  font-size:17px!important;
+  line-height:1.15!important;
+  margin-left:18px!important;
+}
+
+body.vehicle-portrait-open .vehicle-timeline-v-rail{
+  width:7px!important;
+}
+
+@media(prefers-color-scheme:light){
+  body.line-open .live-card,
+  body.vehicle-portrait-open .vehicle-portrait-card.live-card{
+    background:rgba(255,255,255,.94)!important;
+    border:1px solid rgba(15,23,42,.08)!important;
+    box-shadow:0 18px 46px rgba(15,23,42,.11)!important;
+  }
+}
+
+@media(prefers-color-scheme:dark){
+  body.line-open .live-card,
+  body.vehicle-portrait-open .vehicle-portrait-card.live-card{
+    background:rgba(15,23,42,.94)!important;
+    border:1px solid rgba(125,211,252,.18)!important;
+    box-shadow:0 24px 64px rgba(0,0,0,.38)!important;
+  }
+}
+
+@media(max-width:700px){
+  body.line-open .live-card,
+  body.vehicle-portrait-open .vehicle-portrait-card.live-card{
+    padding:17px!important;
+    border-radius:28px!important;
+  }
+}
+
+/* === FIN V7 BUS UI SOURCE UNIQUE === */

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nettoyage cache TCL</title>
+</head>
+<body style="font-family:-apple-system,sans-serif;background:#020617;color:white;padding:40px;text-align:center">
+<h1>Nettoyage cache TCL</h1>
+<p id="status">Nettoyage en cours…</p>
+<a id="go" href="/" style="color:#38bdf8;font-size:22px;font-weight:900">Ouvrir TCL Temps Réel</a>
+<script>
+(async()=>{
+  if("serviceWorker" in navigator){
+    const regs=await navigator.serviceWorker.getRegistrations();
+    for(const r of regs){await r.unregister();}
+  }
+  if(window.caches){
+    const keys=await caches.keys();
+    for(const k of keys){await caches.delete(k);}
+  }
+  localStorage.clear();
+  sessionStorage.clear();
+  const fresh="/?v7clean="+Date.now();
+  document.getElementById("go").href=fresh;
+  document.getElementById("status").innerHTML="Cache nettoyé ✅<br>Ferme puis rouvre le site.";
+})();
+</script>
+</body>
+</html>

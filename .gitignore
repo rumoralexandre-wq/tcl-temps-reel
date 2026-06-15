@@ -1,0 +1,60 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Environnement virtuel
+venv/
+
+# Fichiers de sauvegarde
+*.BACKUP_*
+*.STABLE*
+*.SAFE_*
+*.bak*
+*.bak-*
+
+# Doublon artefact Flask (static/ imbriqué)
+static/static/
+
+# Paquets
+*.deb
+*.gz
+*.zip
+*.tar
+
+# Répertoires de sauvegarde
+backups/
+backups_local/
+selfservice_backups/
+ARCHIVES_HISTORIQUES_V7/
+SAUVEGARDE_*/
+
+# Données dynamiques (régénérées au runtime)
+tcl_data/
+
+# Logs
+*.log
+
+# Éditeurs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Outils de développement
+.aider*
+.claude/
+
+# Installeurs
+installer/
+pandoc*.deb
+
+# Données volumineuses
+data/

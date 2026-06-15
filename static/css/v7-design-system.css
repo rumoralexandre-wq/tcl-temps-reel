@@ -1,0 +1,1122 @@
+/* =========================================================
+   TCL TEMPS REEL — V7 DESIGN SYSTEM
+   Source visuelle unique.
+   CSS only : ne touche pas au moteur, JS, Python, timeline logic.
+========================================================= */
+
+:root{
+  --v7-radius-card:28px;
+  --v7-radius-sheet:34px;
+  --v7-radius-button:18px;
+  --v7-radius-pill:999px;
+
+  --v7-space-xs:8px;
+  --v7-space-sm:12px;
+  --v7-space-md:16px;
+  --v7-space-lg:22px;
+  --v7-space-xl:32px;
+
+  --v7-red:#e5282b;
+  --v7-blue:#0ea5e9;
+  --v7-green:#22c55e;
+  --v7-orange:#f59e0b;
+
+  --v7-bg-light:#f8fbff;
+  --v7-panel-light:rgba(255,255,255,.94);
+  --v7-text-light:#0f172a;
+  --v7-muted-light:#64748b;
+
+  --v7-bg-dark:#07111f;
+  --v7-panel-dark:rgba(15,23,42,.94);
+  --v7-text-dark:#f8fafc;
+  --v7-muted-dark:#94a3b8;
+
+  --v7-shadow-light:0 18px 46px rgba(15,23,42,.11);
+  --v7-shadow-dark:0 24px 64px rgba(0,0,0,.38);
+}
+
+/* Base panneaux */
+.v7-detail-sheet,
+.v7-section-sheet{
+  border-radius:var(--v7-radius-sheet) var(--v7-radius-sheet) 0 0!important;
+}
+
+/* Headers cohérents */
+.v7-detail-head,
+.v7-section-sheet .v7-detail-head{
+  gap:var(--v7-space-sm)!important;
+  margin-bottom:var(--v7-space-lg)!important;
+}
+
+.v7-detail-head h2,
+.v7-section-sheet .v7-detail-head h2,
+#lineTitle,
+#trafficTitle{
+  font-weight:1000!important;
+  letter-spacing:-.8px!important;
+  line-height:1.05!important;
+}
+
+/* Boutons retour / actions */
+.v7-detail-head button,
+.v7-section-back,
+#lineBack,
+#trafficBack,
+.vehicle-portrait-close,
+.v7-sidebar-close{
+  min-height:44px!important;
+  border-radius:var(--v7-radius-button)!important;
+  font-weight:950!important;
+}
+
+/* Cartes génériques */
+.live-card,
+.vehicle-portrait-card.live-card,
+.line-traffic-card,
+.traffic-card,
+.traffic-line-card,
+.traffic-item{
+  border-radius:var(--v7-radius-card)!important;
+}
+
+/* Suivi bus : visuel uniquement, moteur intact */
+body.line-open .live-card,
+body.vehicle-portrait-open .vehicle-portrait-card.live-card{
+  padding:18px!important;
+  overflow:hidden!important;
+}
+
+body.line-open .live-top,
+body.vehicle-portrait-open .vehicle-portrait-topline{
+  align-items:center!important;
+  gap:12px!important;
+}
+
+body.line-open .bus-pill,
+body.vehicle-portrait-open .vehicle-portrait-card .bus-pill{
+  border-radius:20px!important;
+  padding:9px 13px!important;
+  font-weight:1000!important;
+}
+
+body.line-open .dest,
+body.vehicle-portrait-open .vehicle-portrait-card .dest{
+  font-size:clamp(20px,4vw,26px)!important;
+  line-height:1.08!important;
+  letter-spacing:-.65px!important;
+  margin:12px 0 10px!important;
+}
+
+body.line-open .bus-state,
+body.vehicle-portrait-open .vehicle-portrait-card .bus-state,
+body.vehicle-portrait-open .vehicle-portrait-card .vehicle-portrait-state{
+  padding:8px 12px!important;
+  border-radius:18px!important;
+  font-size:14px!important;
+  line-height:1.15!important;
+  font-weight:950!important;
+}
+
+/* Timeline : tailles seulement, pas de position moteur */
+body.line-open .tcl-timeline-v3{
+  height:140px!important;
+  margin-top:28px!important;
+}
+
+body.line-open .tcl-timeline-v3-name{
+  font-size:11.5px!important;
+  line-height:1.12!important;
+  max-width:78px!important;
+}
+
+body.vehicle-portrait-open .vehicle-timeline-v-name{
+  font-size:17px!important;
+  line-height:1.15!important;
+  margin-left:18px!important;
+}
+
+body.vehicle-portrait-open .vehicle-timeline-v-rail{
+  width:7px!important;
+}
+
+/* Light */
+@media(prefers-color-scheme:light){
+  body,
+  body.line-open #lineView.open{
+    background:var(--v7-bg-light)!important;
+    color:var(--v7-text-light)!important;
+  }
+
+  body.line-open .live-card,
+  body.vehicle-portrait-open .vehicle-portrait-card.live-card{
+    background:var(--v7-panel-light)!important;
+    border:1px solid rgba(15,23,42,.08)!important;
+    box-shadow:var(--v7-shadow-light)!important;
+  }
+}
+
+/* Dark */
+@media(prefers-color-scheme:dark){
+  body.line-open #lineView.open{
+    background:var(--v7-bg-dark)!important;
+    color:var(--v7-text-dark)!important;
+  }
+
+  body.line-open .live-card,
+  body.vehicle-portrait-open .vehicle-portrait-card.live-card{
+    background:var(--v7-panel-dark)!important;
+    border:1px solid rgba(125,211,252,.18)!important;
+    box-shadow:var(--v7-shadow-dark)!important;
+  }
+}
+
+/* Mobile */
+@media(max-width:700px){
+  body.line-open .live-card,
+  body.vehicle-portrait-open .vehicle-portrait-card.live-card{
+    padding:17px!important;
+    border-radius:28px!important;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* =========================================================
+   V7 DESIGN SYSTEM — SOURCE UNIQUE FINALE
+   CSS only. Aucun moteur timeline / JS / Python touché.
+========================================================= */
+
+:root{
+  --v7-ui-bg:#f7f9fd;
+  --v7-ui-panel:rgba(255,255,255,.94);
+  --v7-ui-text:#0f172a;
+  --v7-ui-muted:#64748b;
+  --v7-ui-border:rgba(15,23,42,.075);
+  --v7-ui-shadow:0 10px 28px rgba(15,23,42,.075);
+  --v7-ui-radius:24px;
+  --v7-ui-radius-btn:16px;
+}
+
+/* Fonds homogènes */
+#lignesView,
+#autourView,
+#favorisView,
+#trafficView,
+#horairesView,
+#lineView,
+.v7-detail-sheet,
+.v7-section-sheet,
+.v7-horaires-sheet{
+  background:linear-gradient(180deg,#f8fbff,#eef4fb)!important;
+  color:var(--v7-ui-text)!important;
+  padding-left:0!important;
+  padding-right:0!important;
+}
+
+/* Headers homogènes */
+#lignesView .v7-detail-head,
+#autourView .v7-detail-head,
+#favorisView .v7-detail-head,
+#trafficView .v7-detail-head,
+#horairesView .v7-detail-head,
+#lineView .v7-detail-head,
+.v7-detail-head,
+.v7-section-sheet .v7-detail-head{
+  height:auto!important;
+  min-height:68px!important;
+  padding:12px 16px!important;
+  margin:0 0 12px!important;
+  gap:12px!important;
+  background:transparent!important;
+  border-bottom:0!important;
+  position:relative!important;
+}
+
+/* Titres homogènes */
+#lignesView .v7-detail-head h2,
+#autourView .v7-detail-head h2,
+#favorisView .v7-detail-head h2,
+#trafficView .v7-detail-head h2,
+#horairesTitle,
+#lineTitle,
+.v7-detail-head h2,
+.v7-section-sheet .v7-detail-head h2{
+  font-size:30px!important;
+  line-height:1!important;
+  font-weight:1000!important;
+  letter-spacing:-.9px!important;
+  color:var(--v7-ui-text)!important;
+  margin:0!important;
+}
+
+/* Boutons retour homogènes */
+#lignesBack,
+#autourBack,
+#favorisBack,
+#horairesBack,
+#trafficBack,
+#lineBack,
+.v7-section-back{
+  width:44px!important;
+  min-width:44px!important;
+  height:44px!important;
+  min-height:44px!important;
+  padding:0!important;
+  border-radius:15px!important;
+  background:rgba(255,255,255,.9)!important;
+  border:1px solid var(--v7-ui-border)!important;
+  color:var(--v7-ui-text)!important;
+  box-shadow:0 6px 18px rgba(15,23,42,.07)!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:21px!important;
+  font-weight:1000!important;
+  -webkit-tap-highlight-color:transparent!important;
+}
+
+/* Contenus */
+#lignesContent,
+#autourContent,
+#favorisContent,
+#trafficContent,
+#horairesContent,
+.hor-page-content{
+  box-sizing:border-box!important;
+  width:100%!important;
+  padding-left:14px!important;
+  padding-right:14px!important;
+  padding-bottom:110px!important;
+  gap:14px!important;
+}
+
+/* Cartes principales */
+#lignesContent > *,
+#autourContent > *,
+#favorisContent > *,
+#trafficList > *,
+.hor-panel,
+.hor-result-card,
+.hor-nearby-item,
+.hor-stop-card,
+.hor-step,
+.iti-panel,
+.iti-card,
+.iti-route-card,
+.iti-result-card,
+.iti-step-card,
+.line-traffic-inline,
+.line-traffic-card,
+.traffic-card,
+.traffic-item,
+.traffic-line-card,
+.live-card,
+.vehicle-portrait-card.live-card{
+  width:100%!important;
+  box-sizing:border-box!important;
+  border-radius:var(--v7-ui-radius)!important;
+  background:var(--v7-ui-panel)!important;
+  border:1px solid var(--v7-ui-border)!important;
+  box-shadow:var(--v7-ui-shadow)!important;
+}
+
+/* Densité cartes */
+.hor-panel,
+.hor-result-card,
+.hor-nearby-item,
+.hor-stop-card,
+.hor-step,
+.iti-panel,
+.iti-card,
+.iti-route-card,
+.iti-result-card,
+.iti-step-card,
+.line-traffic-inline,
+.line-traffic-card,
+.traffic-card,
+.traffic-item,
+.traffic-line-card{
+  padding:16px!important;
+}
+
+/* Listes iOS */
+#favorisContent > *,
+#lignesContent > *{
+  min-height:72px!important;
+  display:flex!important;
+  align-items:center!important;
+}
+
+.hor-page-grid{
+  display:grid!important;
+  gap:14px!important;
+}
+
+#trafficList{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:14px!important;
+}
+
+/* Titres secondaires */
+.hor-panel h3,
+.hor-step-title,
+.hor-result-title,
+.traffic-category-title,
+.favorites-section-title,
+.iti-section-title,
+.v7-section-title{
+  font-size:18px!important;
+  line-height:1.1!important;
+  font-weight:1000!important;
+  letter-spacing:-.2px!important;
+  text-transform:none!important;
+  color:var(--v7-ui-text)!important;
+}
+
+/* Textes secondaires */
+small,
+.hor-result-meta,
+.hor-step small,
+.line-traffic-card small{
+  color:var(--v7-ui-muted)!important;
+  font-weight:800!important;
+}
+
+/* Formulaires */
+input,
+select,
+textarea,
+#horairesSearchInput,
+.iti-input,
+.hor-search-input{
+  min-height:52px!important;
+  border-radius:17px!important;
+  border:1px solid var(--v7-ui-border)!important;
+  background:rgba(255,255,255,.92)!important;
+  color:var(--v7-ui-text)!important;
+  font-weight:850!important;
+  box-shadow:none!important;
+}
+
+button,
+#horairesSearchBtn,
+.hor-search-btn,
+.iti-btn,
+.iti-primary,
+.iti-submit{
+  min-height:44px!important;
+  border-radius:17px!important;
+  font-weight:950!important;
+}
+
+/* Sidebar */
+.v7-sidebar{
+  background:rgba(255,255,255,.98)!important;
+  border-right:1px solid var(--v7-ui-border)!important;
+  box-shadow:10px 0 36px rgba(15,23,42,.09)!important;
+}
+
+.v7-sidebar-header{
+  min-height:92px!important;
+  padding:20px!important;
+  border-bottom:1px solid var(--v7-ui-border)!important;
+}
+
+.v7-sidebar-brand-mark{
+  width:54px!important;
+  height:54px!important;
+  border-radius:16px!important;
+}
+
+.v7-sidebar-brand-name{
+  font-size:21px!important;
+  font-weight:1000!important;
+}
+
+.v7-nav-item{
+  min-height:56px!important;
+  border-radius:18px!important;
+  margin:3px 12px!important;
+  padding:0 14px!important;
+  font-weight:950!important;
+}
+
+.v7-nav-icon{
+  width:38px!important;
+  height:38px!important;
+  border-radius:13px!important;
+}
+
+.v7-sidebar-close{
+  -webkit-tap-highlight-color:transparent!important;
+}
+
+/* Accueil widget autour */
+.v7-home-nearby-card{
+  border-radius:24px!important;
+  background:var(--v7-ui-panel)!important;
+  border:1px solid var(--v7-ui-border)!important;
+  box-shadow:var(--v7-ui-shadow)!important;
+}
+
+/* Suivi bus : visuel uniquement, aucune position timeline touchée */
+body.line-open .live-card,
+body.vehicle-portrait-open .vehicle-portrait-card.live-card{
+  padding:17px!important;
+  border-radius:28px!important;
+}
+
+body.line-open .dest,
+body.vehicle-portrait-open .vehicle-portrait-card .dest{
+  font-size:clamp(20px,4vw,26px)!important;
+  line-height:1.08!important;
+  letter-spacing:-.65px!important;
+}
+
+/* Dark */
+@media(prefers-color-scheme:dark){
+  :root{
+    --v7-ui-bg:#07111f;
+    --v7-ui-panel:rgba(15,23,42,.94);
+    --v7-ui-text:#f8fafc;
+    --v7-ui-muted:#94a3b8;
+    --v7-ui-border:rgba(125,211,252,.14);
+    --v7-ui-shadow:0 14px 36px rgba(0,0,0,.30);
+  }
+
+  #lignesView,
+  #autourView,
+  #favorisView,
+  #trafficView,
+  #horairesView,
+  #lineView,
+  .v7-detail-sheet,
+  .v7-section-sheet,
+  .v7-horaires-sheet{
+    background:linear-gradient(180deg,#07111f,#0b1628)!important;
+  }
+
+  #lignesBack,
+  #autourBack,
+  #favorisBack,
+  #horairesBack,
+  #trafficBack,
+  #lineBack,
+  .v7-section-back{
+    background:rgba(15,23,42,.9)!important;
+    color:var(--v7-ui-text)!important;
+  }
+
+  input,
+  select,
+  textarea,
+  #horairesSearchInput,
+  .iti-input,
+  .hor-search-input{
+    background:rgba(15,23,42,.8)!important;
+    color:var(--v7-ui-text)!important;
+  }
+
+  .v7-sidebar{
+    background:rgba(7,17,31,.98)!important;
+  }
+}
+
+
+
+/* Polish contenu intégré */
+#favorisContent,
+#trafficContent,
+#horairesContent,
+#lignesContent,
+#autourContent{
+  display:flex!important;
+  flex-direction:column!important;
+}
+
+#favorisContent h3,
+#trafficContent h3,
+#horairesContent h3,
+#lignesContent h3,
+#autourContent h3,
+.hor-panel h3{
+  margin:0 0 6px!important;
+  font-size:18px!important;
+  line-height:1.12!important;
+  font-weight:1000!important;
+  color:var(--v7-ui-text)!important;
+}
+
+#favorisContent p,
+#trafficContent p,
+#horairesContent p,
+#lignesContent p,
+#autourContent p,
+.hor-panel p{
+  margin:0!important;
+  color:var(--v7-ui-muted)!important;
+  font-weight:800!important;
+}
+
+.line-badge,
+.v7-line-badge,
+.hor-line-pill,
+.hor-direction-pill,
+.hor-stop-pill,
+.traffic-badge{
+  border-radius:16px!important;
+  font-weight:1000!important;
+}
+
+#favorisContent button,
+#trafficContent button,
+#horairesContent button,
+#lignesContent button,
+#autourContent button{
+  min-height:42px!important;
+  border-radius:15px!important;
+}
+
+@media(max-width:700px){
+  #favorisContent > *,
+  #lignesContent > *,
+  #autourContent > *,
+  #trafficList > *,
+  .hor-panel,
+  .hor-result-card,
+  .hor-nearby-item{
+    min-height:auto!important;
+  }
+}
+
+
+
+/* Ajustement lisibilité / densité intégré */
+#lignesView,
+#autourView,
+#favorisView,
+#trafficView,
+#horairesView{
+  background:
+    radial-gradient(circle at 20% 0%, rgba(14,165,233,.10), transparent 32%),
+    linear-gradient(180deg,#f8fbff,#eef4fb)!important;
+}
+
+#lignesContent,
+#autourContent,
+#favorisContent,
+#trafficContent,
+#horairesContent{
+  padding-top:4px!important;
+}
+
+#lignesContent > *,
+#autourContent > *,
+#favorisContent > *,
+#trafficList > *,
+.hor-panel,
+.hor-result-card,
+.hor-nearby-item,
+.hor-stop-card,
+.line-traffic-card,
+.traffic-card,
+.traffic-item,
+.traffic-line-card{
+  border-color:rgba(15,23,42,.06)!important;
+  box-shadow:0 8px 24px rgba(15,23,42,.075), inset 0 1px 0 rgba(255,255,255,.75)!important;
+}
+
+.v7-detail-head h2,
+#horairesTitle,
+#trafficTitle,
+#lineTitle{
+  font-size:clamp(28px,7vw,34px)!important;
+}
+
+#lignesBack,
+#autourBack,
+#favorisBack,
+#horairesBack,
+#trafficBack,
+#lineBack,
+.v7-section-back{
+  position:relative!important;
+}
+
+#lignesBack::after,
+#autourBack::after,
+#favorisBack::after,
+#horairesBack::after,
+#trafficBack::after,
+#lineBack::after,
+.v7-section-back::after{
+  content:""!important;
+  position:absolute!important;
+  inset:-8px!important;
+}
+
+.v7-nav-item.active,
+.v7-nav-item.is-active,
+.v7-nav-item[aria-current="page"]{
+  background:linear-gradient(135deg,rgba(229,40,43,.10),rgba(14,165,233,.08))!important;
+  box-shadow:inset 0 0 0 1px rgba(229,40,43,.10)!important;
+}
+
+.hor-search-panel,
+.hor-panel{
+  overflow:hidden!important;
+}
+
+#horairesSearchInput{
+  background:rgba(255,255,255,.96)!important;
+}
+
+@media(prefers-color-scheme:dark){
+  #lignesView,
+  #autourView,
+  #favorisView,
+  #trafficView,
+  #horairesView{
+    background:
+      radial-gradient(circle at 20% 0%, rgba(14,165,233,.12), transparent 34%),
+      linear-gradient(180deg,#07111f,#0b1628)!important;
+  }
+
+  #lignesContent > *,
+  #autourContent > *,
+  #favorisContent > *,
+  #trafficList > *,
+  .hor-panel,
+  .hor-result-card,
+  .hor-nearby-item,
+  .hor-stop-card,
+  .line-traffic-card,
+  .traffic-card,
+  .traffic-item,
+  .traffic-line-card{
+    box-shadow:0 14px 36px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.04)!important;
+  }
+}
+
+
+/* Navigation / interactions intégrées */
+button,
+.v7-nav-item,
+#lignesContent > *,
+#autourContent > *,
+#favorisContent > *,
+#trafficList > *,
+.hor-panel,
+.hor-result-card,
+.hor-nearby-item{
+  transition:transform .16s ease, box-shadow .16s ease, background .16s ease!important;
+}
+
+button:active,
+.v7-nav-item:active,
+#lignesContent > *:active,
+#autourContent > *:active,
+#favorisContent > *:active,
+#trafficList > *:active{
+  transform:scale(.985)!important;
+}
+
+.v7-nav-label,
+.v7-sidebar-brand-name,
+.v7-detail-head h2,
+#horairesTitle,
+#trafficTitle,
+#lineTitle{
+  text-wrap:balance!important;
+}
+
+@media(max-width:700px){
+  .v7-sidebar{
+    width:min(86vw,360px)!important;
+    border-radius:0 28px 28px 0!important;
+  }
+
+  .v7-nav-item{
+    min-height:54px!important;
+  }
+}
+
+
+/* Correctifs visuels intégrés */
+html,
+body{
+  -webkit-font-smoothing:antialiased!important;
+  text-rendering:geometricPrecision!important;
+}
+
+.v7-detail-sheet,
+.v7-section-sheet,
+.v7-horaires-sheet{
+  overflow-x:hidden!important;
+}
+
+#lignesContent > *,
+#autourContent > *,
+#favorisContent > *,
+#trafficList > *,
+.hor-panel,
+.hor-result-card,
+.hor-nearby-item,
+.hor-stop-card{
+  backdrop-filter:saturate(1.08)!important;
+  -webkit-backdrop-filter:saturate(1.08)!important;
+}
+
+.v7-nav-item,
+.v7-section-back,
+#horairesBack,
+#trafficBack,
+#lineBack{
+  cursor:pointer!important;
+}
+
+.v7-nav-item:focus-visible,
+.v7-section-back:focus-visible,
+#horairesBack:focus-visible,
+#trafficBack:focus-visible,
+#lineBack:focus-visible,
+button:focus-visible,
+input:focus-visible{
+  outline:3px solid rgba(14,165,233,.28)!important;
+  outline-offset:3px!important;
+}
+
+@media(max-width:700px){
+  #lignesContent,
+  #autourContent,
+  #favorisContent,
+  #trafficContent,
+  #horairesContent{
+    padding-left:12px!important;
+    padding-right:12px!important;
+  }
+
+  #lignesView .v7-detail-head,
+  #autourView .v7-detail-head,
+  #favorisView .v7-detail-head,
+  #trafficView .v7-detail-head,
+  #horairesView .v7-detail-head,
+  #lineView .v7-detail-head{
+    padding-left:12px!important;
+    padding-right:12px!important;
+  }
+}
+
+
+/* Tuning final cohérence vues */
+#favorisContent,
+#trafficContent,
+#horairesContent,
+#lignesContent,
+#autourContent{
+  row-gap:14px!important;
+}
+
+#favorisContent > *,
+#trafficList > *,
+#lignesContent > *,
+#autourContent > *,
+.hor-panel,
+.hor-result-card,
+.hor-nearby-item{
+  margin-left:0!important;
+  margin-right:0!important;
+}
+
+.v7-detail-head{
+  box-sizing:border-box!important;
+  width:100%!important;
+}
+
+.v7-detail-head h2,
+#horairesTitle,
+#trafficTitle,
+#lineTitle{
+  max-width:calc(100vw - 92px)!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+
+#horairesContent .hor-panel,
+#horairesContent .hor-step,
+#horairesContent .hor-result-card{
+  margin-bottom:14px!important;
+}
+
+#trafficContent{
+  display:flex!important;
+  flex-direction:column!important;
+}
+
+body.line-open .live-card,
+body.vehicle-portrait-open .vehicle-portrait-card.live-card{
+  max-width:100%!important;
+  box-sizing:border-box!important;
+}
+
+/* Desktop/tablette : largeur lisible */
+@media(min-width:760px){
+  #lignesContent,
+  #autourContent,
+  #favorisContent,
+  #trafficContent,
+  #horairesContent{
+    max-width:920px!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+  }
+}
+
+
+/* Finition vues modules intégrée */
+#favorisView,
+#trafficView,
+#horairesView,
+#lignesView,
+#autourView{
+  min-height:100dvh!important;
+}
+
+#favorisContent,
+#trafficContent,
+#horairesContent,
+#lignesContent,
+#autourContent{
+  scroll-padding-bottom:120px!important;
+}
+
+#favorisContent:empty::before,
+#trafficContent:empty::before,
+#lignesContent:empty::before,
+#autourContent:empty::before{
+  content:"Chargement…"!important;
+  display:block!important;
+  padding:18px!important;
+  border-radius:22px!important;
+  background:var(--v7-ui-panel)!important;
+  color:var(--v7-ui-muted)!important;
+  font-weight:900!important;
+  box-shadow:var(--v7-ui-shadow)!important;
+}
+
+.hor-panel,
+.hor-result-card,
+.hor-nearby-item,
+.hor-stop-card,
+#favorisContent > *,
+#trafficList > *,
+#lignesContent > *,
+#autourContent > *{
+  overflow:hidden!important;
+}
+
+@supports(-webkit-touch-callout:none){
+  #lignesView,
+  #autourView,
+  #favorisView,
+  #trafficView,
+  #horairesView{
+    min-height:-webkit-fill-available!important;
+  }
+}
+
+
+
+/* Safe area / scroll final intégré */
+#lignesView,
+#autourView,
+#favorisView,
+#trafficView,
+#horairesView,
+#lineView{
+  overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+
+#lignesContent,
+#autourContent,
+#favorisContent,
+#trafficContent,
+#horairesContent{
+  padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))!important;
+}
+
+.v7-detail-head{
+  padding-top:calc(12px + env(safe-area-inset-top,0px))!important;
+}
+
+.v7-section-back,
+#horairesBack,
+#trafficBack,
+#lineBack{
+  flex:0 0 auto!important;
+}
+
+@media(max-width:430px){
+  .v7-detail-head h2,
+  #horairesTitle,
+  #trafficTitle,
+  #lineTitle{
+    font-size:28px!important;
+  }
+
+  #lignesContent,
+  #autourContent,
+  #favorisContent,
+  #trafficContent,
+  #horairesContent{
+    padding-left:10px!important;
+    padding-right:10px!important;
+  }
+}
+
+
+/* Status final propreté intégré */
+@media(prefers-reduced-motion:reduce){
+  *,
+  *::before,
+  *::after{
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    scroll-behavior:auto!important;
+    transition-duration:.01ms!important;
+  }
+}
+
+#lignesContent,
+#autourContent,
+#favorisContent,
+#trafficContent,
+#horairesContent{
+  min-height:0!important;
+}
+
+.v7-detail-head h2,
+#horairesTitle,
+#trafficTitle,
+#lineTitle{
+  white-space:nowrap!important;
+}
+
+@media(max-width:360px){
+  .v7-detail-head h2,
+  #horairesTitle,
+  #trafficTitle,
+  #lineTitle{
+    font-size:26px!important;
+  }
+}
+
+
+/* Polish modules final intégré */
+#favorisContent,
+#trafficContent,
+#horairesContent,
+#lignesContent,
+#autourContent{
+  animation:v7SheetFade .22s ease both!important;
+}
+
+@keyframes v7SheetFade{
+  from{opacity:.72; transform:translateY(6px)}
+  to{opacity:1; transform:translateY(0)}
+}
+
+#favorisContent > *,
+#trafficList > *,
+#lignesContent > *,
+#autourContent > *,
+.hor-panel,
+.hor-result-card,
+.hor-nearby-item{
+  transform-origin:center!important;
+}
+
+#favorisContent > *:hover,
+#trafficList > *:hover,
+#lignesContent > *:hover,
+#autourContent > *:hover,
+.hor-panel:hover,
+.hor-result-card:hover,
+.hor-nearby-item:hover{
+  box-shadow:0 12px 30px rgba(15,23,42,.095), inset 0 1px 0 rgba(255,255,255,.78)!important;
+}
+
+@media(hover:none){
+  #favorisContent > *:hover,
+  #trafficList > *:hover,
+  #lignesContent > *:hover,
+  #autourContent > *:hover,
+  .hor-panel:hover,
+  .hor-result-card:hover,
+  .hor-nearby-item:hover{
+    box-shadow:var(--v7-ui-shadow)!important;
+  }
+}
+
+
+/* Compact final mobile intégré */
+@media(max-width:430px){
+  #favorisContent,
+  #trafficContent,
+  #horairesContent,
+  #lignesContent,
+  #autourContent{
+    row-gap:12px!important;
+  }
+
+  #favorisContent > *,
+  #trafficList > *,
+  #lignesContent > *,
+  #autourContent > *,
+  .hor-panel,
+  .hor-result-card,
+  .hor-nearby-item,
+  .hor-stop-card{
+    border-radius:20px!important;
+    padding:14px!important;
+  }
+
+  .v7-nav-item{
+    margin-left:10px!important;
+    margin-right:10px!important;
+  }
+}
+
+/* === FIN V7 DESIGN SYSTEM — SOURCE UNIQUE FINALE === */
+
+
+
+
+
+
+
+
+
+

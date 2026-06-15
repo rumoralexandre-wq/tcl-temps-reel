@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#f8fbff">
+<title>TCL Temps Réel</title>
+<link rel="stylesheet" href="/static/leaflet.min.css">
+<link rel="stylesheet" href="/static/css/v7.css?v=20260614busdesignv1">
+<link rel="stylesheet" href="/static/css/v7-home-final.css?v=20260614busuisourceunique">
+<link rel="stylesheet" href="/static/css/v7-design-system.css?v=20260614v34">
+<script src="/static/leaflet.min.js"></script>
+</head>
+<body class="v7-home">
+<div class="v7-app">
+
+  <!-- ════════════════════════════════════════
+       SIDEBAR
+  ════════════════════════════════════════ -->
+  <aside class="v7-sidebar" id="v7Sidebar" aria-label="Navigation principale">
+    <div class="v7-sidebar-inner">
+
+      <div class="v7-sidebar-header">
+        <div class="v7-sidebar-brand">
+          <div class="v7-sidebar-brand-mark">TCL</div>
+          <div class="v7-sidebar-brand-text">
+            <span class="v7-sidebar-brand-name">Temps Réel</span>
+          </div>
+        </div>
+        <button class="v7-sidebar-close" id="v7SidebarClose" type="button" aria-label="Fermer le menu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <nav class="v7-sidebar-nav">
+
+        <button class="v7-nav-item active" data-section="home" type="button">
+          <span class="v7-nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </span>
+          <span class="v7-nav-label">Accueil</span>
+        </button>
+
+        <button class="v7-nav-item" data-section="itineraire" type="button">
+          <span class="v7-nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h6l2 3h10"/><path d="M3 18h6l2-3h10"/><circle cx="6" cy="6" r="2"/><circle cx="18" cy="15" r="2"/><circle cx="6" cy="18" r="2"/></svg>
+          </span>
+          <span class="v7-nav-label">Itinéraire</span>
+        </button>
+
+        <button class="v7-nav-item" data-section="horaires" type="button">
+          <span class="v7-nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </span>
+          <span class="v7-nav-label">Horaires</span>
+        </button>
+
+        <button class="v7-nav-item" data-section="lignes" type="button">
+          <span class="v7-nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          </span>
+          <span class="v7-nav-label">Lignes</span>
+        </button>
+
+        <button class="v7-nav-item" data-section="autour" type="button">
+          <span class="v7-nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </span>
+          <span class="v7-nav-label">Autour de moi</span>
+          <span class="v7-nav-badge" id="v7NavBadgeAutour"></span>
+        </button>
+
+        <button class="v7-nav-item" data-section="trafic" type="button">
+          <span class="v7-nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10.29 3.86-8.47 14.27A2 2 0 0 0 3.54 21h16.92a2 2 0 0 0 1.72-3l-8.47-14.27a2 2 0 0 0-3.42.13z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+          </span>
+          <span class="v7-nav-label">Trafic</span>
+          <span class="v7-nav-badge" id="v7NavBadgeTrafic"></span>
+        </button>
+
+        <button class="v7-nav-item" data-section="favoris" type="button">
+          <span class="v7-nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </span>
+          <span class="v7-nav-label">Favoris</span>
+        </button>
+
+        <button class="v7-nav-item v7-nav-reglages" data-section="reglages" type="button">
+          <span class="v7-nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </span>
+          <span class="v7-nav-label">Réglages</span>
+        </button>
+
+      </nav>
+
+      <div class="v7-sidebar-footer">
+        <span>TCL Temps Réel</span>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- Overlay fermeture sidebar (mobile) -->
+  <div class="v7-sidebar-overlay" id="v7SidebarOverlay"></div>
+
+  <!-- ════════════════════════════════════════
+       CARTE
+  ════════════════════════════════════════ -->
+  <section class="v7-map-shell">
+    <div class="v7-map-card">
+      <div class="v7-map-card-glow"></div>
+      <div id="map"></div>
+      <div class="v7-map-dim" id="mapDim"></div>
+      <button class="v7-recenter-map" id="recenterMap" type="button" aria-label="Recentrer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="9" stroke-width="1.5" opacity=".4"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════
+       TOPBAR (header logo mobile + search)
+  ════════════════════════════════════════ -->
+  <section class="v7-topbar">
+
+    <!-- Row mobile : hamburger + logo TCL -->
+    <div class="v7-topbar-header">
+      <button class="v7-hamburger" id="v7Hamburger" type="button" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="v7-topbar-logo" aria-hidden="true">
+        <span class="v7-topbar-logo-mark">TCL</span>
+        <span class="v7-topbar-logo-name">Temps Réel</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════
+       WIDGET BAS (proximité + favoris)
+  ════════════════════════════════════════ -->
+
+  <!-- Nouveau widget accueil propre : Autour de vous -->
+  <section class="v7-home-nearby-card" id="v7HomeNearbyCard">
+    <div class="v7-home-nearby-head">
+      <div>
+        <h2>Autour de vous</h2>
+        <p id="v7HomeNearbyMeta">Recherche des arrêts proches…</p>
+      </div>
+      <button id="v7HomeNearbyClose" type="button" aria-label="Fermer">×</button>
+    </div>
+
+    <div class="v7-home-nearby-list" id="v7HomeNearbyList">
+      <div class="v7-home-nearby-loading">Localisation en cours…</div>
+    </div>
+
+    <button class="v7-home-nearby-all" id="v7HomeNearbyAll" type="button">
+      Voir tous les arrêts proches
+    </button>
+  </section>
+
+
+  <!-- ════════════════════════════════════════
+       PANNEAUX DÉTAIL (existants, inchangés)
+  ════════════════════════════════════════ -->
+
+  <section class="v7-detail-sheet" id="lineView">
+    <div class="v7-detail-head">
+      <button id="lineBack">‹ Retour</button>
+      <h2 id="lineTitle">Ligne</h2>
+    </div>
+    <div id="lineContent"></div>
+  </section>
+
+  <section class="v7-detail-sheet" id="trafficView">
+    <div class="v7-detail-head">
+      <button id="trafficBack">‹ Retour</button>
+      <h2 id="trafficTitle">Info trafic</h2>
+    </div>
+    <div id="trafficContent">
+      <div id="trafficList"></div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════
+       NOUVELLES SECTIONS SIDEBAR
+  ════════════════════════════════════════ -->
+
+  <!-- Lignes -->
+  <section class="v7-detail-sheet v7-section-sheet" id="lignesView">
+    <div class="v7-sheet-handle" aria-hidden="true"></div>
+    <div class="v7-detail-head">
+      <button class="v7-section-back" id="lignesBack" type="button" aria-label="Retour">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <h2>Lignes</h2>
+    </div>
+    <div id="lignesContent">
+      <div id="trackList" style="display:none" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <!-- Autour de moi -->
+  <section class="v7-detail-sheet v7-section-sheet" id="autourView">
+    <div class="v7-sheet-handle" aria-hidden="true"></div>
+    <div class="v7-detail-head">
+      <button class="v7-section-back" id="autourBack" type="button" aria-label="Retour">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <h2>Autour de moi</h2>
+    </div>
+    <div id="autourContent"></div>
+  </section>
+
+  <!-- Favoris -->
+  <section class="v7-detail-sheet v7-section-sheet" id="favorisView">
+    <div class="v7-sheet-handle" aria-hidden="true"></div>
+    <div class="v7-detail-head">
+      <button class="v7-section-back" id="favorisBack" type="button" aria-label="Retour">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <h2>Favoris</h2>
+    </div>
+    <div id="favorisContent"></div>
+  </section>
+
+  <!-- Réglages -->
+  <section class="v7-detail-sheet v7-section-sheet" id="reglagensView">
+    <div class="v7-sheet-handle" aria-hidden="true"></div>
+    <div class="v7-detail-head">
+      <button class="v7-section-back" id="reglagensBack" type="button" aria-label="Retour">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <h2>Réglages</h2>
+    </div>
+    <div id="reglagensContent"></div>
+  </section>
+
+  <!-- Overlay / scrim derrière les section sheets (mobile) -->
+  <div class="v7-sheet-overlay" id="v7SheetOverlay" aria-hidden="true"></div>
+
+  <!-- ════════════════════════════════════════
+       MODULE HORAIRES V7
+  ════════════════════════════════════════ -->
+  <div class="v7-horaires-overlay" id="horairesOverlay" aria-hidden="true"></div>
+
+  <section class="v7-detail-sheet v7-horaires-sheet" id="horairesView" role="dialog" aria-labelledby="horairesTitle" aria-modal="false">
+    <div class="v7-detail-head hor-page-head">
+      <button id="horairesBack" type="button" class="hor-back-btn" aria-label="Retour à la carte">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="hor-page-heading">
+        <h2 id="horairesTitle">Horaires</h2>
+        <p>Trouvez vos prochains passages</p>
+      </div>
+    </div>
+
+    <div id="horairesContent" class="hor-page-content">
+      <div id="horairesHome" class="hor-page-grid">
+        <section class="hor-panel hor-nearby-panel" aria-labelledby="horairesNearbyTitle">
+          <div class="hor-section-head">
+            <div>
+              <h3 id="horairesNearbyTitle">Arrêts proches</h3>
+              <p>Détection automatique autour de vous</p>
+            </div>
+            <span class="hor-live-dot" aria-label="Actualisation automatique"></span>
+          </div>
+          <div id="horairesNearbyList" class="hor-nearby-list" aria-live="polite"></div>
+        </section>
+
+        <section class="hor-panel hor-search-panel" aria-labelledby="horairesSearchTitle">
+          <div class="hor-section-head">
+            <div>
+              <h3 id="horairesSearchTitle">Rechercher un horaire</h3>
+              <p>Sélectionnez une ligne puis un arrêt</p>
+            </div>
+          </div>
+
+          <div class="hor-search-bar">
+            <input id="horairesSearchInput" type="search" placeholder="Filtrer une ligne (C10, T1, 17)" autocomplete="off" autocorrect="off" spellcheck="false">
+            <button class="hor-search-btn" id="horairesSearchBtn" type="button">Rechercher</button>
+          </div>
+
+          <div class="hor-step" id="horairesLineStep">
+            <div class="hor-step-title"><span>1</span> Choisir une ligne</div>
+            <div id="horairesLinePills" class="hor-line-pills" aria-live="polite"></div>
+          </div>
+
+          <div class="hor-step is-muted" id="horairesDirectionStep" aria-live="polite"></div>
+          <div class="hor-step is-muted" id="horairesStopStep" aria-live="polite"></div>
+          <div class="hor-step is-muted" id="horairesPassagesStep" aria-live="polite"></div>
+        </section>
+      </div>
+
+      <div id="horairesSearchResults" class="hor-results" hidden></div>
+      <div id="horairesFicheLigne" hidden></div>
+      <div id="horairesFicheArret" hidden></div>
+      <div id="horairesProchains" hidden></div>
+    </div>
+  </section>
+
+</div><!-- /.v7-app -->
+<script src="/static/js/v7.js?v=20260615realbutton01"></script>
+</body>
+</html>
