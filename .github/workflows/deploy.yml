@@ -14,11 +14,10 @@ jobs:
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
-          cat << 'EOF' > ~/.ssh/deploy_key
-          ${{ secrets.SSH_PRIVATE_KEY }}
-          EOF
+          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" | sed 's/\\n/\n/g' | tr -d '\r' > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null || true
+          ssh-keygen -y -f ~/.ssh/deploy_key >/dev/null
 
       - name: Deploy
         run: |
