@@ -113,12 +113,18 @@ body,
     min-height: 0 !important;
     flex: 1 1 auto !important;
     overflow-y: auto !important;
-    overflow-x: hidden !important;
+    overflow-x: clip !important;
     -webkit-overflow-scrolling: touch !important;
     overscroll-behavior: contain !important;
     padding-bottom: var(--v7-ios-scroll-pad) !important;
-    padding-left: max(12px, env(safe-area-inset-left, 0px)) !important;
-    padding-right: max(12px, env(safe-area-inset-right, 0px)) !important;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(16px, env(safe-area-inset-right, 0px)) !important;
+  }
+
+  body.favoris-open #favorisView.open #favorisContent,
+  body.lignes-open #lignesView.open #lignesContent,
+  body.traffic-open #trafficView.open #trafficContent {
+    overflow-x: visible !important;
   }
 
   .v7-sheet-overlay {
@@ -718,12 +724,18 @@ body.traffic-open #trafficView.open #trafficContent {
   width: 100% !important;
   max-width: 100% !important;
   margin-left: 0 !important;
-  padding-left: 2px !important;
+  padding-left: 10px !important;
+  padding-right: 4px !important;
   overflow: visible !important;
   box-sizing: border-box !important;
-  letter-spacing: 0.06em !important;
+  letter-spacing: 0.04em !important;
   text-indent: 0 !important;
   transform: none !important;
+}
+
+body.favoris-open .v7-favoris-group-title {
+  letter-spacing: 0.04em !important;
+  padding-left: 12px !important;
 }
 
 body.favoris-open #favorisContent > .v7-favoris-group,
@@ -732,7 +744,7 @@ body.traffic-open #trafficContent > .v7-traffic-group {
   display: block !important;
   align-items: stretch !important;
   min-height: auto !important;
-  padding: 16px !important;
+  padding: 20px 18px !important;
   overflow: visible !important;
 }
 
@@ -831,18 +843,73 @@ body.vehicle-portrait-open .vehicle-portrait-close::after {
   }
 }
 
-/* Labels rouges — marge gauche lisible */
-.v7-favoris-group-title,
-.v7-lignes-category-title,
-.v7-traffic-group-title {
-  padding-left: 6px !important;
-  padding-right: 2px !important;
+/* Labels rouges — marge gauche lisible (v19) */
+body.favoris-open #favorisView.open .v7-favoris-group-title,
+body.lignes-open #lignesView.open .v7-lignes-category-title,
+body.traffic-open #trafficView.open .v7-traffic-group-title {
+  padding-left: 12px !important;
+  letter-spacing: 0.04em !important;
 }
 
-body.favoris-open #favorisContent > .v7-favoris-group,
-body.lignes-open #lignesContent > .v7-lignes-category,
-body.traffic-open #trafficContent > .v7-traffic-group {
-  padding: 18px 16px !important;
+body.favoris-open #favorisView.open #favorisContent > .v7-favoris-group {
+  padding: 20px 18px !important;
+  overflow: visible !important;
+}
+
+/* Headers : safe-area + alignement vertical */
+@media (max-width: 767px) {
+  body.traffic-open #trafficView .v7-detail-head,
+  body.line-open #lineView .v7-detail-head {
+    align-items: center !important;
+    gap: 14px !important;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 12px) !important;
+  }
+
+  body.line-open #lineBack,
+  body.traffic-open #trafficBack {
+    align-self: center !important;
+  }
+
+  body.line-open #lineTitle {
+    align-self: center !important;
+  }
+
+  .v7-sidebar-header {
+    align-items: center !important;
+  }
+
+  .v7-sidebar-brand {
+    align-items: center !important;
+  }
+
+  .v7-sidebar-brand-mark {
+    align-self: center !important;
+  }
+
+  /* Portrait véhicule : badge retard sans chevauchement étoile */
+  body.vehicle-portrait-open .vehicle-portrait-topline {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 10px !important;
+    grid-template-columns: none !important;
+    grid-template-areas: none !important;
+  }
+
+  body.vehicle-portrait-open .vehicle-portrait-card .bus-pill {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    max-width: calc(100% - 108px) !important;
+  }
+
+  body.vehicle-portrait-open .vehicle-portrait-card .delay {
+    flex: 0 0 auto !important;
+    margin-left: auto !important;
+    max-width: 46% !important;
+    white-space: nowrap !important;
+    font-size: 12px !important;
+    padding: 8px 10px !important;
+  }
 }
 
 /* Itinéraire : départ sur 2 lignes (placeholder non tronqué) */
@@ -913,6 +980,18 @@ body.traffic-open #trafficContent > .v7-traffic-group {
 }
 
 /* Portrait véhicule : backdrop strictement lié à .open */
+/* Portrait véhicule : masquer la fiche ligne sous-jacente */
+body.vehicle-portrait-open #lineView.open .v7-detail-head,
+body.vehicle-portrait-open #lineView.open #lineContent {
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+}
+
+#vehiclePortraitView.open {
+  z-index: calc(var(--v7-ios-modal-z, 9990) + 2) !important;
+}
+
 #vehiclePortraitView:not(.open) {
   display: none !important;
   visibility: hidden !important;
