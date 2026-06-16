@@ -1225,6 +1225,7 @@ async function openLine(line, withTraffic=true){
 
 function home(){
  v7RefreshMapSize();
+ try{ window.v7Itineraire?.close?.(false); }catch(e){}
  if(lineTimer){
   clearInterval(lineTimer);
   lineTimer=null;
@@ -2286,6 +2287,8 @@ document.addEventListener("click", function(e){
   function v7Navigate(section){
     _activeSection = section;
     setNavActive(section);
+
+    if(typeof window.v7Itineraire?.close === "function") window.v7Itineraire.close(false);
 
     // Fermer la sidebar sur mobile
     if(window.innerWidth < 768) closeSidebar();
@@ -4360,7 +4363,13 @@ document.addEventListener("click", function(e){
     return view;
   }
 
+  function closeItiPopup(){
+    qs("#itiRoutePopup")?.classList.remove("open");
+    document.body.classList.remove("iti-result-modal-open");
+  }
+
   function openPanel(){
+    closeItiPopup();
     closeOther();
     document.body.classList.add("itineraire-open","iti-hide-nearby");
     qsa(".v7-nav-item").forEach(el => el.classList.toggle("active", el.dataset.section === "itineraire"));
@@ -4368,9 +4377,21 @@ document.addEventListener("click", function(e){
     render();
   }
 
-  function closePanel(){
-    document.body.classList.remove("itineraire-open","iti-hide-nearby","iti-result-modal-open");
+  function closePanel(restoreHome){
+    if(restoreHome === undefined) restoreHome = true;
+    closeItiPopup();
+    document.body.classList.remove("itineraire-open","iti-hide-nearby","sidebar-open","search-focus");
     qs("#itineraireView")?.classList.remove("open");
+    qsa(".v7-nav-item").forEach(el => el.classList.toggle("active", el.dataset.section === "home"));
+    try{
+      if(typeof closeSidebar === "function") closeSidebar();
+    }catch(e){}
+    if(restoreHome){
+      try{
+        if(typeof v7RefreshMapSize === "function") v7RefreshMapSize();
+        else if(typeof setViewMode === "function") setViewMode("home");
+      }catch(e){}
+    }
   }
 
   function render(){
@@ -4421,7 +4442,8 @@ document.addEventListener("click", function(e){
   }
 
   function bind(){
-    qs("#itineraireBack")?.addEventListener("click", closePanel);
+    const back = qs("#itineraireBack");
+    if(back) back.onclick = () => closePanel();
     qs("[data-iti-position]")?.addEventListener("click", usePosition);
     qs("[data-iti-plan]")?.addEventListener("click", async (e) => { e.preventDefault(); await plan(); });
 
@@ -4812,14 +4834,12 @@ function itiSuggestionLabel(it){
       </div>
     `;
 
+    document.body.classList.add("iti-result-modal-open");
     pop.classList.add("open");
 
-    qs("[data-iti-popup-close]", pop)?.addEventListener("click", () => {
-      pop.classList.remove("open");
-    });
-
+    qs("[data-iti-popup-close]", pop)?.addEventListener("click", closeItiPopup);
     pop.addEventListener("click", e => {
-      if(e.target === pop) pop.classList.remove("open");
+      if(e.target === pop) closeItiPopup();
     }, {once:true});
   }
 
@@ -5230,13 +5250,9 @@ function itiSuggestionLabel(it){
     document.body.classList.add("iti-result-modal-open");
     pop.classList.add("open");
 
-    const close = () => {
-      pop.classList.remove("open");
-      document.body.classList.remove("iti-result-modal-open");
-    };
-    qs("[data-iti-popup-close]", pop)?.addEventListener("click", close);
+    qs("[data-iti-popup-close]", pop)?.addEventListener("click", closeItiPopup);
     qs("[data-iti-download]", pop)?.addEventListener("click", () => downloadOfficialJourney(journey, result));
-    pop.addEventListener("click", e => { if(e.target === pop) close(); });
+    pop.addEventListener("click", e => { if(e.target === pop) closeItiPopup(); });
     qsa(".iti-step-card", pop).forEach(card => card.classList.add("open"));
   }
 

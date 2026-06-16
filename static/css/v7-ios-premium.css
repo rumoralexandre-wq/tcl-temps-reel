@@ -220,14 +220,31 @@ body,
   body.horaires-open #horairesView.open {
     position: fixed !important;
     inset: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
     width: 100vw !important;
     height: 100dvh !important;
     max-height: none !important;
+    margin: 0 !important;
+    transform: none !important;
+    translate: none !important;
     border-radius: 0 !important;
-    z-index: var(--v7-ios-sheet-z) !important;
+    z-index: calc(var(--v7-ios-sheet-z) + 35) !important;
     display: flex !important;
     flex-direction: column !important;
     overflow: hidden !important;
+  }
+
+  body.horaires-open .v7-horaires-overlay,
+  body.horaires-open #horairesOverlay {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
 
   body.horaires-open #horairesView .hor-page-head,
@@ -1010,5 +1027,68 @@ body.vehicle-portrait-open #lineView.open #lineContent {
   opacity: 0 !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
+  pointer-events: none !important;
+}
+
+/* ══ ITINÉRAIRE — cycle de vie overlay (iOS Safari) ══ */
+
+#itiRoutePopup:not(.open),
+.iti-route-popup:not(.open) {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: transparent !important;
+}
+
+body:not(.itineraire-open):not(.iti-result-modal-open) #itineraireView {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+body:not(.itineraire-open):not(.iti-result-modal-open) #map,
+body:not(.itineraire-open):not(.iti-result-modal-open) .leaflet-container,
+body:not(.itineraire-open):not(.iti-result-modal-open) .leaflet-pane {
+  pointer-events: auto !important;
+}
+
+body.itineraire-open .v7-sidebar-overlay,
+body.itineraire-open .v7-sheet-overlay,
+body.iti-result-modal-open .v7-sidebar-overlay,
+body.iti-result-modal-open .v7-sheet-overlay {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+body:not(.iti-result-modal-open) #itiRoutePopup.open {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* ══ HORAIRES — overlay lifecycle (iOS Safari) ══ */
+
+body:not(.horaires-open) .v7-horaires-overlay,
+body:not(.horaires-open) #horairesOverlay {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+body:not(.horaires-open) #horairesView.open {
+  display: none !important;
+  visibility: hidden !important;
   pointer-events: none !important;
 }
