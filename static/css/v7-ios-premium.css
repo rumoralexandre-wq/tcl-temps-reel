@@ -1278,3 +1278,34 @@ body:not(.horaires-open) #horairesView.open {
     box-shadow: 0 16px 44px rgba(0, 0, 0, .45) !important;
   }
 }
+
+/* HOTFIX 20260617 — Dark mode boutons restants visibles */
+@media (prefers-color-scheme: dark) {
+  body.horaires-open #horairesBack,
+  body.horaires-open .hor-back-btn {
+    background: rgba(15, 23, 42, .92) !important;
+    color: #f8fafc !important;
+    border: 1px solid rgba(148, 163, 184, .28) !important;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .42) !important;
+  }
+
+  body.horaires-open .hor-nearby-stop [class*="loc"],
+  body.horaires-open .hor-nearby-stop [class*="geo"],
+  body.horaires-open .hor-nearby-stop [class*="target"],
+  body.horaires-open .hor-nearby-stop [class*="cross"] {
+    background: rgba(14, 165, 233, .14) !important;
+    color: #7dd3fc !important;
+    border-color: rgba(125, 211, 252, .22) !important;
+  }
+
+  body.v7-home:not(.traffic-open):not(.line-open):not(.lignes-open):not(.favoris-open):not(.autour-open):not(.reglages-open):not(.horaires-open):not(.itineraire-open):not(.vehicle-portrait-open):not(.sidebar-open) .v7-recenter-map,
+  body.v7-home:not(.traffic-open):not(.line-open):not(.lignes-open):not(.favoris-open):not(.autour-open):not(.reglages-open):not(.horaires-open):not(.itineraire-open):not(.vehicle-portrait-open):not(.sidebar-open) #v7RecenterMap {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    background: rgba(15, 23, 42, .82) !important;
+    color: #f8fafc !important;
+    border: 1px solid rgba(148, 163, 184, .22) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .40) !important;
+  }
+}
