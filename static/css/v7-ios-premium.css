@@ -1012,3 +1012,151 @@ body.vehicle-portrait-open #lineView.open #lineContent {
   -webkit-backdrop-filter: none !important;
   pointer-events: none !important;
 }
+
+/* =========================================================
+   V7 THEME — CORRECTIFS COHÉRENCE MODE SOMBRE
+   CSS uniquement (aucun moteur / JS / Python / logique touché).
+   Chargé en dernier : neutralise les surfaces restées claires
+   en mode sombre, défaites par des règles claires inconditionnelles
+   de feuilles chargées plus tôt.
+   Tokens alignés sur les blocs sombres existants
+   (#07111f fond, #0f172a/#111c2e surfaces, #f8fafc texte,
+    #94a3b8 secondaire, rgba(148,163,184,.22) bordures).
+========================================================= */
+@media (prefers-color-scheme: dark) {
+
+  /* 1. Chrome page + carte : évite le flash/bande claire (#f8fbff)
+        au chargement des tuiles et en overscroll. */
+  html,
+  body {
+    background: #07111f !important;
+  }
+  .v7-app,
+  .v7-map,
+  .v7-map-shell,
+  .v7-map-wrap,
+  #map,
+  #v7Map,
+  .leaflet-container {
+    background: #07111f !important;
+  }
+
+  /* 2. Widget « Autour de vous » (accueil), état déplié :
+        carte blanche + texte foncé -> panneau sombre lisible. */
+  body.v7-home:not(.line-open):not(.traffic-open):not(.lignes-open):not(.favoris-open):not(.reglages-open):not(.horaires-open):not(.vehicle-portrait-open):not(.sidebar-open) .v7-home-nearby-card {
+    background: rgba(15, 23, 42, .94) !important;
+    border: 1px solid rgba(125, 211, 252, .18) !important;
+    box-shadow: 0 22px 60px rgba(0, 0, 0, .45) !important;
+    color: #f8fafc !important;
+  }
+  .v7-home-nearby-head h2 {
+    color: #f8fafc !important;
+  }
+  .v7-home-nearby-head p {
+    color: #94a3b8 !important;
+  }
+  #v7HomeNearbyClose {
+    background: rgba(148, 163, 184, .18) !important;
+    color: #cbd5e1 !important;
+  }
+
+  /* 4. Horaires : contrôles restés clairs en mode sombre
+        (champ de recherche, boutons, pastilles lignes, directions,
+         lignes d'arrêts, arrêts proches, cartes passages). */
+  body.horaires-open #horairesSearchInput {
+    background: #111c2e !important;
+    color: #f8fafc !important;
+    border-color: rgba(148, 163, 184, .22) !important;
+  }
+  body.horaires-open #horairesSearchInput::placeholder {
+    color: #94a3b8 !important;
+  }
+  body.horaires-open #horairesSearchInput:focus {
+    background: #16223a !important;
+  }
+  body.horaires-open #horairesSearchBtn.hor-search-btn,
+  body.horaires-open #horairesBack.hor-back-btn {
+    background: #111c2e !important;
+    color: #f8fafc !important;
+    border-color: rgba(148, 163, 184, .22) !important;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, .30) !important;
+  }
+
+  .hor-line-pill,
+  .hor-direction-btn,
+  .hor-stop-row,
+  .hor-nearby-stop,
+  .hor-passages-card,
+  .hor-refresh-btn {
+    background: #111c2e !important;
+    color: #f8fafc !important;
+    border-color: rgba(148, 163, 184, .22) !important;
+  }
+
+  .hor-stop-name,
+  .hor-passages-top h4,
+  .hor-step-title {
+    color: #f8fafc !important;
+  }
+
+  .hor-line-pill small,
+  .hor-direction-btn small,
+  .hor-passages-top p,
+  .hor-passage-time,
+  .hor-no-time,
+  .hor-mini-lines em {
+    color: #94a3b8 !important;
+  }
+
+  .hor-empty,
+  .hor-hint {
+    background: #111c2e !important;
+    border-color: rgba(148, 163, 184, .22) !important;
+    color: #94a3b8 !important;
+  }
+
+  .hor-step {
+    border-top-color: rgba(148, 163, 184, .18) !important;
+  }
+  .hor-stop-index {
+    background: #1e293b !important;
+    color: #cbd5e1 !important;
+  }
+  .hor-chevron {
+    color: #64748b !important;
+  }
+  .hor-source-badge {
+    background: #1e293b !important;
+    color: #cbd5e1 !important;
+  }
+
+  /* États actifs : fond bleu très clair -> accent sombre lisible. */
+  .hor-line-pill.is-active,
+  .hor-direction-btn.is-active,
+  .hor-stop-row.is-active {
+    background: rgba(14, 165, 233, .16) !important;
+    border-color: rgba(14, 165, 233, .55) !important;
+  }
+
+  /* 5. Boutons retour (fiche ligne / trafic / sections) :
+        faces claires -> faces sombres. */
+  #lineBack,
+  #trafficBack,
+  .v7-section-back {
+    background: rgba(148, 163, 184, .16) !important;
+    color: #f8fafc !important;
+  }
+}
+
+/* 3. Topbar mobile + bouton recentrage (verre blanc -> verre sombre).
+      Scope identique aux règles claires d'origine : accueil, mobile. */
+@media (max-width: 767px) and (prefers-color-scheme: dark) {
+  body.v7-home:not(.traffic-open):not(.line-open):not(.lignes-open):not(.favoris-open):not(.autour-open):not(.reglages-open):not(.horaires-open):not(.itineraire-open):not(.vehicle-portrait-open):not(.sidebar-open) .v7-topbar-header {
+    background: rgba(15, 23, 42, .82) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .40) !important;
+  }
+  body.v7-home:not(.traffic-open):not(.line-open):not(.lignes-open):not(.favoris-open):not(.autour-open):not(.reglages-open):not(.horaires-open):not(.itineraire-open):not(.vehicle-portrait-open):not(.sidebar-open) .v7-recenter-map {
+    background: rgba(15, 23, 42, .82) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .40) !important;
+  }
+}
