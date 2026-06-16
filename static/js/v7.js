@@ -3230,6 +3230,9 @@ document.addEventListener("click", function(e){
    Source unique pour l'onglet Horaires.
 ========================================================= */
 (function(){
+  // Horaires correction: keep the premium flow module below as active source.
+  // This guided implementation is left dormant as fallback only.
+  return;
   "use strict";
 
   const REFRESH_MS = 30000;
@@ -3737,9 +3740,6 @@ document.addEventListener("click", function(e){
    UX propre : recherche -> arrêt -> ligne -> passages -> horaires journée
 ========================================================= */
 (function(){
-  // Lot 1 cleanup: this legacy duplicate horaires module is disabled.
-  // Source of truth remains the primary horaires module defined earlier.
-  return;
   const REFRESH_MS = 30000;
   const RADIUS = 700;
 
