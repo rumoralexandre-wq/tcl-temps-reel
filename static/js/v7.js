@@ -4723,7 +4723,7 @@ function itiSuggestionLabel(it){
     try{
       const official = await postJson("/api/tcl/journeys", payload);
       const rawJourneys = official?.data?.journeys || official?.journeys || [];
-      const journeys = filterCurrentJourneys(rawJourneys);
+      const journeys = rankOfficialJourneys(filterCurrentJourneys(rawJourneys));
       if(official.ok && journeys.length){
         const result = {
           ok:true,
@@ -4964,17 +4964,128 @@ function itiSuggestionLabel(it){
     return Math.max(0, transportSections.length - 1);
   }
 
-  function tclJourneyCardHtml(journey, idx){
+
+  function tclIsTransitSection(section){
+    const type = section?.type || "";
+    return type === "public-transport" || type === "on-demand-transport";
+  }
+
+  function tclJourneyStats(journey){
+    const sections = journey?.sections || [];
+    const transitSections = sections.filter(tclIsTransitSection);
+    const transitCount = transitSections.length;
+    const transfers = Math.max(0, transitCount - 1);
+    const lines = transitSections.map(s => s.line?.code).filter(Boolean);
+    let walkMinutes = 0;
+    let bikeMinutes = 0;
+    let hasBike = false;
+    let hasCar = false;
+
+    for(const section of sections){
+      const minutes = tclMinutes(section?.departure, section?.arrival);
+      const type = section?.type || "";
+      if(type === "walk") walkMinutes += minutes;
+      else if(type === "bike"){ hasBike = true; bikeMinutes += minutes; }
+      else if(type === "car") hasCar = true;
+    }
+
+    return {
+      transitCount,
+      transfers,
+      lines,
+      walkMinutes,
+      bikeMinutes,
+      hasBike,
+      hasCar,
+      totalMinutes: tclJourneyMinutes(journey),
+      isTclExploitable: transitCount > 0,
+      isNonTclOnly: transitCount === 0
+    };
+  }
+
+  function tclJourneyScore(journey){
+    const stats = tclJourneyStats(journey);
+    let score = 0;
+
+    if(stats.isTclExploitable) score -= 100000;
+    else score += 500000;
+
+    score += stats.totalMinutes * 100;
+    score += stats.transfers * 900;
+    score += stats.walkMinutes * 45;
+    score += stats.bikeMinutes * 250;
+    if(stats.hasCar) score += 4000;
+    if(stats.transitCount === 1) score -= 700;
+
+    return score;
+  }
+
+  function tclCompareJourneyScore(a, b){
+    const diff = tclJourneyScore(a) - tclJourneyScore(b);
+    if(diff !== 0) return diff;
+    const depA = tclDate(a?.departure)?.getTime() || 0;
+    const depB = tclDate(b?.departure)?.getTime() || 0;
+    return depA - depB;
+  }
+
+  function tclIsTclJourneyRelevant(bestTcl, bestNonTcl){
+    if(!bestTcl) return false;
+    if(!bestNonTcl) return true;
+    const tclMin = tclJourneyMinutes(bestTcl);
+    const altMin = Math.max(1, tclJourneyMinutes(bestNonTcl));
+    const delta = tclMin - altMin;
+    const ratio = tclMin / altMin;
+    if(delta >= 45) return false;
+    if(ratio >= 2.4 && delta >= 25) return false;
+    return true;
+  }
+
+  function prepareOfficialJourneyPresentation(journeys){
+    const tcl = [];
+    const nonTcl = [];
+    for(const journey of (journeys || [])){
+      if(tclJourneyStats(journey).isTclExploitable) tcl.push(journey);
+      else nonTcl.push(journey);
+    }
+
+    const rankedTcl = [...tcl].sort(tclCompareJourneyScore);
+    const rankedNonTcl = [...nonTcl].sort(tclCompareJourneyScore);
+    const tclRelevant = tclIsTclJourneyRelevant(rankedTcl[0], rankedNonTcl[0]);
+
+    const recommended = tclRelevant ? (rankedTcl[0] || null) : null;
+    const tclOptions = tclRelevant ? rankedTcl.slice(1, 5) : rankedTcl.slice(0, 5);
+    const alternatives = rankedNonTcl.slice(0, 5);
+    const centerJourney = recommended || rankedTcl[0] || rankedNonTcl[0] || null;
+
+    return {
+      tclRelevant,
+      recommended,
+      tclOptions,
+      alternatives,
+      centerJourney,
+      allJourneys: [...rankedTcl, ...rankedNonTcl]
+    };
+  }
+
+  function rankOfficialJourneys(journeys){
+    return prepareOfficialJourneyPresentation(journeys).allJourneys;
+  }
+
+  function tclJourneyCardHtml(journey, idx, options){
+    options = options || {};
     const minutes = tclJourneyMinutes(journey);
     const modes = tclJourneyModes(journey);
     const transfers = tclTransferCount(journey);
     const from = journey.sections?.[0]?.from?.name || "Départ";
     const last = journey.sections?.[journey.sections.length - 1];
     const to = last?.to?.name || "Arrivée";
+    const journeyKey = options.journeyKey != null ? options.journeyKey : idx;
+    const kicker = options.kicker || (idx === 0 ? "Recommandé" : "Option " + (Number(idx) + 1));
+    const bestClass = options.recommended ? "best" : "";
 
     return `
-      <button type="button" class="iti-journey-card ${idx === 0 ? "best" : ""}" data-iti-journey="${esc(idx)}">
-        <span class="iti-journey-kicker">${idx === 0 ? "Recommandé" : "Option " + (idx + 1)}</span>
+      <button type="button" class="iti-journey-card ${bestClass}" data-iti-journey="${esc(journeyKey)}">
+        <span class="iti-journey-kicker">${esc(kicker)}</span>
         <div class="iti-journey-main">
           <strong>${esc(tclMainTitle(journey))}</strong>
           <em>${esc(minutes)} min</em>
@@ -4991,15 +5102,43 @@ function itiSuggestionLabel(it){
   function renderOfficialResult(data){
     const out = qs("#itiOutput");
     if(!out) return;
-    const journeys = (data.journeys || []).slice(0,5);
-    const best = journeys[0];
+    const presentation = prepareOfficialJourneyPresentation(data.journeys || []);
+    const { recommended, tclOptions, alternatives, centerJourney } = presentation;
 
-    if(!best){
+    if(!centerJourney){
       out.innerHTML = `<div class="iti-error">Aucun itinéraire disponible.</div>`;
       return;
     }
 
-    const centerTime = tclHm(best.departure);
+    const cards = [];
+    const journeyByKey = {};
+    let optionNo = 2;
+
+    if(recommended){
+      const key = "rec";
+      journeyByKey[key] = recommended;
+      cards.push(tclJourneyCardHtml(recommended, 0, { recommended: true, kicker: "Recommandé", journeyKey: key }));
+    } else if((data.journeys || []).some(j => tclJourneyStats(j).isTclExploitable)){
+      cards.push(`<div class="iti-explain">Aucun trajet TCL vraiment pertinent trouvé.</div>`);
+    }
+
+    for(const journey of tclOptions){
+      const key = "tcl-" + cards.length;
+      journeyByKey[key] = journey;
+      const kicker = recommended ? ("Option " + optionNo++) : ("Trajet TCL " + (cards.length));
+      cards.push(tclJourneyCardHtml(journey, cards.length, { kicker, journeyKey: key }));
+    }
+
+    if(alternatives.length){
+      cards.push(`<p class="iti-section-note">Alternatives hors TCL</p>`);
+      alternatives.forEach((journey, i) => {
+        const key = "alt-" + i;
+        journeyByKey[key] = journey;
+        cards.push(tclJourneyCardHtml(journey, cards.length, { kicker: "Alternative " + (i + 1), journeyKey: key }));
+      });
+    }
+
+    const centerTime = tclHm(centerJourney.departure);
     out.innerHTML = `
       <section class="iti-result-toolbar" aria-label="Navigation des résultats">
         <button type="button" data-iti-earlier>‹ Plus tôt</button>
@@ -5007,7 +5146,7 @@ function itiSuggestionLabel(it){
         <button type="button" data-iti-later>Plus tard ›</button>
       </section>
       <section class="iti-journey-list" aria-label="Trajets proposés">
-        ${journeys.map(tclJourneyCardHtml).join("")}
+        ${cards.join("")}
       </section>
     `;
 
@@ -5016,8 +5155,8 @@ function itiSuggestionLabel(it){
 
     qsa("[data-iti-journey]", out).forEach(card => {
       card.addEventListener("click", () => {
-        const idx = Number(card.dataset.itiJourney || 0);
-        openOfficialJourneySheet(journeys[idx], data);
+        const key = card.dataset.itiJourney || "";
+        openOfficialJourneySheet(journeyByKey[key], data);
       });
     });
   }
