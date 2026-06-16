@@ -4318,7 +4318,7 @@ document.addEventListener("click", function(e){
     view.className = "v7-itineraire-view";
     view.innerHTML = `
       <header class="iti-top">
-        <button id="itineraireBack" type="button" class="iti-back">‹</button>
+        <button id="itineraireBack" type="button" class="iti-back" aria-label="Retour à la carte">‹</button>
         <div>
           <h2>Itinéraire</h2>
           <p>Calculer le meilleur trajet TCL</p>
@@ -4364,9 +4364,9 @@ document.addEventListener("click", function(e){
           <div id="itiToResults" class="iti-results"></div>
         </div>
 
-        <div class="iti-mode-tabs">
-          <button type="button" data-iti-mode="depart" class="${state.mode === "depart" ? "active" : ""}">Partir à</button>
-          <button type="button" data-iti-mode="arrive" class="${state.mode === "arrive" ? "active" : ""}">Arriver avant</button>
+        <div class="iti-mode-tabs" role="tablist" aria-label="Type de recherche">
+          <button type="button" role="tab" aria-selected="${state.mode === "depart" ? "true" : "false"}" data-iti-mode="depart" class="${state.mode === "depart" ? "active" : ""}">Partir à</button>
+          <button type="button" role="tab" aria-selected="${state.mode === "arrive" ? "true" : "false"}" data-iti-mode="arrive" class="${state.mode === "arrive" ? "active" : ""}">Arriver avant</button>
         </div>
 
         <div class="iti-time-grid">
@@ -4395,12 +4395,13 @@ document.addEventListener("click", function(e){
     qs("[data-iti-position]")?.addEventListener("click", usePosition);
     qs("[data-iti-plan]")?.addEventListener("click", async (e) => { e.preventDefault(); await plan(); });
 
-    qsa("[data-iti-mode]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        state.mode = btn.dataset.itiMode || "depart";
-        qsa("[data-iti-mode]").forEach(b => b.classList.toggle("active", b === btn));
-      });
-    });
+	    qsa("[data-iti-mode]").forEach(btn => {
+	      btn.addEventListener("click", () => {
+	        state.mode = btn.dataset.itiMode || "depart";
+	        qsa("[data-iti-mode]").forEach(b => b.classList.toggle("active", b === btn));
+	        qsa("[data-iti-mode]").forEach(b => b.setAttribute("aria-selected", b === btn ? "true" : "false"));
+	      });
+	    });
 
     bindSearch("#itiFromInput","#itiFromResults","from");
     bindSearch("#itiToInput","#itiToResults","to");
@@ -4918,27 +4919,58 @@ function itiSuggestionLabel(it){
     `;
   }
 
-  function tclJourneyHtml(journey, idx){
-    const minutes = tclJourneyMinutes(journey);
-    const sections = journey.sections || [];
-    const transitLines = sections
+  function tclJourneyLines(journey){
+    return (journey.sections || [])
       .filter(s => s.line?.code)
       .map(s => s.line.code)
       .filter((v, i, a) => a.indexOf(v) === i);
-    const transfers = Math.max(0, transitLines.length - 1);
-    const title = idx === 0 ? "Meilleur trajet" : `Alternative ${idx + 1}`;
+  }
+
+  function tclJourneyModes(journey){
+    return (journey.sections || [])
+      .map(s => {
+        if(s.type === "public-transport" || s.type === "on-demand-transport") return s.line?.code || "TCL";
+        if(s.type === "walk") return "Marche";
+        if(s.type === "bike") return "Vélo";
+        if(s.type === "car") return "Voiture";
+        return "Trajet";
+      })
+      .filter((v, i, a) => a.indexOf(v) === i);
+  }
+
+  function tclMainTitle(journey){
+    const lines = tclJourneyLines(journey);
+    if(lines.length) return lines.join(" + ");
+    const first = (journey.sections || []).find(s => s.type && s.type !== "walk") || (journey.sections || [])[0];
+    return tclModeLabel(first || {});
+  }
+
+  function tclTransferCount(journey){
+    const transportSections = (journey.sections || []).filter(s => s.type === "public-transport" || s.type === "on-demand-transport");
+    return Math.max(0, transportSections.length - 1);
+  }
+
+  function tclJourneyCardHtml(journey, idx){
+    const minutes = tclJourneyMinutes(journey);
+    const modes = tclJourneyModes(journey);
+    const transfers = tclTransferCount(journey);
+    const from = journey.sections?.[0]?.from?.name || "Départ";
+    const last = journey.sections?.[journey.sections.length - 1];
+    const to = last?.to?.name || "Arrivée";
 
     return `
-      <article class="iti-official-journey ${idx === 0 ? "best" : ""}">
-        <div class="iti-result-hero">
-          <span>${esc(title)} · ${esc(tclHm(journey.departure))} → ${esc(tclHm(journey.arrival))}</span>
-          <strong>${esc(minutes)} min</strong>
-          <p>${transitLines.length ? "Lignes " + esc(transitLines.join(" + ")) : "Trajet direct"} · ${esc(transfers)} correspondance${transfers > 1 ? "s" : ""}</p>
+      <button type="button" class="iti-journey-card ${idx === 0 ? "best" : ""}" data-iti-journey="${esc(idx)}">
+        <span class="iti-journey-kicker">${idx === 0 ? "Recommandé" : "Option " + (idx + 1)}</span>
+        <div class="iti-journey-main">
+          <strong>${esc(tclMainTitle(journey))}</strong>
+          <em>${esc(minutes)} min</em>
         </div>
-        <section class="iti-timeline">
-          ${sections.map(tclSectionHtml).join("")}
-        </section>
-      </article>
+        <p>${esc(tclHm(journey.departure))} ${esc(from)} → ${esc(tclHm(journey.arrival))} ${esc(to)}</p>
+        <div class="iti-journey-meta">
+          <span>${esc(transfers)} correspondance${transfers > 1 ? "s" : ""}</span>
+          <span>${esc(modes.join(" · "))}</span>
+        </div>
+      </button>
     `;
   }
 
@@ -4953,21 +4985,137 @@ function itiSuggestionLabel(it){
       return;
     }
 
+    const centerTime = tclHm(best.departure);
     out.innerHTML = `
-      <section class="iti-explain">Trajets calculés avec le moteur TCL temps réel, affichés dans l’interface V7.</section>
-      <div class="iti-actions">
-        <button type="button" data-iti-earlier>Partir plus tôt</button>
-        <button type="button" data-iti-later>Partir plus tard</button>
-      </div>
-      ${journeys.map(tclJourneyHtml).join("")}
+      <section class="iti-result-toolbar" aria-label="Navigation des résultats">
+        <button type="button" data-iti-earlier>‹ Plus tôt</button>
+        <strong>Résultats à ${esc(centerTime)}</strong>
+        <button type="button" data-iti-later>Plus tard ›</button>
+      </section>
+      <section class="iti-journey-list" aria-label="Trajets proposés">
+        ${journeys.map(tclJourneyCardHtml).join("")}
+      </section>
     `;
 
     qs("[data-iti-earlier]")?.addEventListener("click", () => plan(-30));
     qs("[data-iti-later]")?.addEventListener("click", () => plan(30));
 
-    qsa(".iti-step-card", out).forEach(card => {
-      card.addEventListener("click", () => card.classList.toggle("open"));
+    qsa("[data-iti-journey]", out).forEach(card => {
+      card.addEventListener("click", () => {
+        const idx = Number(card.dataset.itiJourney || 0);
+        openOfficialJourneySheet(journeys[idx], data);
+      });
     });
+  }
+
+  function openOfficialJourneySheet(journey, result){
+    if(!journey) return;
+    let pop = qs("#itiRoutePopup");
+    if(!pop){
+      pop = document.createElement("div");
+      pop.id = "itiRoutePopup";
+      pop.className = "iti-route-popup";
+      document.body.appendChild(pop);
+    }
+
+    const minutes = tclJourneyMinutes(journey);
+    const transfers = tclTransferCount(journey);
+    const sections = journey.sections || [];
+    const from = sections[0]?.from?.name || result?.payload?.fromName || "Départ";
+    const to = sections[sections.length - 1]?.to?.name || result?.payload?.toName || "Arrivée";
+
+    pop.innerHTML = `
+      <div class="iti-route-popup-card" role="dialog" aria-modal="true" aria-label="Détail de l’itinéraire">
+        <div class="iti-sheet-grabber" aria-hidden="true"></div>
+        <div class="iti-route-popup-head">
+          <div>
+            <span>${esc(tclMainTitle(journey))}</span>
+            <strong>${esc(minutes)} min</strong>
+            <p>${esc(tclHm(journey.departure))} ${esc(from)} → ${esc(tclHm(journey.arrival))} ${esc(to)} · ${esc(transfers)} correspondance${transfers > 1 ? "s" : ""}</p>
+          </div>
+          <button type="button" data-iti-popup-close aria-label="Fermer">×</button>
+        </div>
+        <div class="iti-popup-actions">
+          <button type="button" data-iti-download>Télécharger l’itinéraire</button>
+        </div>
+        <section class="iti-popup-steps iti-timeline">
+          ${sections.map(tclSectionHtml).join("")}
+        </section>
+      </div>
+    `;
+
+    document.body.classList.add("iti-result-modal-open");
+    pop.classList.add("open");
+
+    const close = () => {
+      pop.classList.remove("open");
+      document.body.classList.remove("iti-result-modal-open");
+    };
+    qs("[data-iti-popup-close]", pop)?.addEventListener("click", close);
+    qs("[data-iti-download]", pop)?.addEventListener("click", () => downloadOfficialJourney(journey, result));
+    pop.addEventListener("click", e => { if(e.target === pop) close(); });
+    qsa(".iti-step-card", pop).forEach(card => card.classList.add("open"));
+  }
+
+  function offlineHtmlEscape(v){
+    return String(v ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]));
+  }
+
+  function offlineSectionHtml(section){
+    const isTransit = section?.type === "public-transport" || section?.type === "on-demand-transport";
+    const title = isTransit ? `Ligne ${section?.line?.code || "TCL"}` : tclModeLabel(section || {});
+    const detail = isTransit
+      ? `Direction ${section?.headsign || section?.direction?.name || "non précisée"}`
+      : tclSectionSummary(section || {});
+    const distance = section?.length || section?.geojson?.properties?.[0]?.length;
+    return `
+      <section class="step">
+        <h2>${offlineHtmlEscape(title)} <span>${offlineHtmlEscape(tclMinutes(section?.departure, section?.arrival))} min</span></h2>
+        <p>${offlineHtmlEscape(section?.from?.name || "Départ")} → ${offlineHtmlEscape(section?.to?.name || "Arrivée")}</p>
+        <p>${offlineHtmlEscape(tclHm(section?.departure))} → ${offlineHtmlEscape(tclHm(section?.arrival))}</p>
+        <p>${offlineHtmlEscape(detail)}</p>
+        ${distance ? `<p>${offlineHtmlEscape(Math.round(Number(distance)))} m</p>` : ""}
+      </section>
+    `;
+  }
+
+  function downloadOfficialJourney(journey, result){
+    const sections = journey.sections || [];
+    const from = sections[0]?.from?.name || result?.payload?.fromName || "Départ";
+    const to = sections[sections.length - 1]?.to?.name || result?.payload?.toName || "Arrivée";
+    const html = `<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Itinéraire TCL</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:#f4f7fb;color:#0f172a;padding:24px}
+.card,.step{background:#fff;border:1px solid #dbe4ef;border-radius:22px;padding:18px;margin:0 0 14px;box-shadow:0 12px 30px rgba(15,23,42,.08)}
+h1{font-size:30px;margin:0 0 8px}.meta{color:#475569;font-weight:700}.step h2{display:flex;justify-content:space-between;gap:16px;font-size:18px;margin:0 0 8px}.step p{margin:6px 0;color:#334155;font-weight:650}
+</style></head><body>
+<main>
+<section class="card">
+<h1>${offlineHtmlEscape(tclMainTitle(journey))}</h1>
+<p class="meta">Départ : ${offlineHtmlEscape(from)}</p>
+<p class="meta">Destination : ${offlineHtmlEscape(to)}</p>
+<p class="meta">Date et heure : ${offlineHtmlEscape(tclDate(journey.departure)?.toLocaleString("fr-FR", {dateStyle:"full", timeStyle:"short"}) || tclHm(journey.departure))}</p>
+<p class="meta">Durée totale : ${offlineHtmlEscape(tclJourneyMinutes(journey))} min</p>
+<p class="meta">Départ ${offlineHtmlEscape(tclHm(journey.departure))} · Arrivée ${offlineHtmlEscape(tclHm(journey.arrival))}</p>
+<p class="meta">Correspondances : ${offlineHtmlEscape(tclTransferCount(journey))}</p>
+<p class="meta">Calculé avec le moteur TCL</p>
+</section>
+${sections.map(offlineSectionHtml).join("")}
+</main></body></html>`;
+
+    const blob = new Blob([html], {type:"text/html;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `itineraire-tcl-${Date.now()}.html`;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+      a.remove();
+    }, 1000);
   }
 
   function stepHtml(s){
