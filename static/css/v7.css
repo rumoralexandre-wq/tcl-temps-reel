@@ -7506,3 +7506,34 @@ body.iti-result-modal-open{
     color:#7dd3fc!important;
   }
 }
+
+/* =========================================================
+   V7 ITINERAIRE — DATE / HEURE MOBILE SPACING
+========================================================= */
+
+@media(max-width:620px){
+  .v7-itineraire-view .iti-time-grid{
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    column-gap:18px!important;
+    row-gap:14px!important;
+    align-items:end!important;
+  }
+
+  .v7-itineraire-view .iti-time-grid .iti-field{
+    min-width:0!important;
+  }
+
+  .v7-itineraire-view .iti-time-grid input{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    box-sizing:border-box!important;
+  }
+}
+
+@media(max-width:410px){
+  .v7-itineraire-view .iti-time-grid{
+    grid-template-columns:1fr!important;
+    gap:14px!important;
+  }
+}
