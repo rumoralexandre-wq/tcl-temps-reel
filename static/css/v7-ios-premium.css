@@ -1309,3 +1309,38 @@ body:not(.horaires-open) #horairesView.open {
     box-shadow: 0 8px 24px rgba(0, 0, 0, .40) !important;
   }
 }
+
+/* HOTFIX 20260617 — Dark mode boutons précis : retour horaires + recenter */
+@media (prefers-color-scheme: dark) {
+  body.horaires-open button#horairesBack.hor-back-btn {
+    background: rgba(15, 23, 42, .92) !important;
+    color: #f8fafc !important;
+    border: 1px solid rgba(148, 163, 184, .32) !important;
+    box-shadow: 0 12px 30px rgba(0,0,0,.42) !important;
+  }
+
+  body.horaires-open button#horairesBack.hor-back-btn svg,
+  body.horaires-open button#horairesBack.hor-back-btn i {
+    color: #f8fafc !important;
+    stroke: #f8fafc !important;
+    fill: none !important;
+  }
+
+  body.v7-home button#recenterMap.v7-recenter-map {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    background: rgba(15, 23, 42, .92) !important;
+    color: #f8fafc !important;
+    border: 1px solid rgba(148, 163, 184, .32) !important;
+    box-shadow: 0 12px 30px rgba(0,0,0,.42) !important;
+  }
+
+  body.v7-home button#recenterMap.v7-recenter-map svg,
+  body.v7-home button#recenterMap.v7-recenter-map i {
+    color: #f8fafc !important;
+    stroke: #f8fafc !important;
+    fill: none !important;
+  }
+}
