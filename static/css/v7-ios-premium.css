@@ -1241,3 +1241,31 @@ body:not(.horaires-open) #horairesView.open {
   visibility: hidden !important;
   pointer-events: none !important;
 }
+
+/* HOTFIX 20260617 — Horaires dark mode : cartes arrêts proches lisibles */
+@media (prefers-color-scheme: dark) {
+  body.horaires-open .hor-nearby-stop,
+  body.horaires-open .hor-stop-row,
+  body.horaires-open .hor-passages-card {
+    background: #111c2e !important;
+    color: #f8fafc !important;
+    border-color: rgba(148, 163, 184, .22) !important;
+  }
+
+  body.horaires-open .hor-stop-name,
+  body.horaires-open .hor-nearby-stop strong,
+  body.horaires-open .hor-nearby-stop h3,
+  body.horaires-open .hor-nearby-stop h4,
+  body.horaires-open .hor-nearby-stop .stop-name {
+    color: #f8fafc !important;
+    opacity: 1 !important;
+  }
+
+  body.horaires-open .hor-nearby-stop small,
+  body.horaires-open .hor-nearby-stop p,
+  body.horaires-open .hor-nearby-stop .distance,
+  body.horaires-open .hor-mini-lines em {
+    color: #94a3b8 !important;
+    opacity: 1 !important;
+  }
+}
