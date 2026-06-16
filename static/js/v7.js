@@ -3734,6 +3734,9 @@ document.addEventListener("click", function(e){
    UX propre : recherche -> arrêt -> ligne -> passages -> horaires journée
 ========================================================= */
 (function(){
+  // Lot 1 cleanup: this legacy duplicate horaires module is disabled.
+  // Source of truth remains the primary horaires module defined earlier.
+  return;
   const REFRESH_MS = 30000;
   const RADIUS = 700;
 
