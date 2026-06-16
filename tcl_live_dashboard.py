@@ -491,6 +491,8 @@ def api_bt_path():
 import json as _tcl_json
 import urllib.parse as _tcl_urlparse
 import urllib.request as _tcl_urlreq
+from datetime import datetime as _tcl_datetime
+from zoneinfo import ZoneInfo as _tcl_ZoneInfo
 from flask import request as _tcl_request, jsonify as _tcl_jsonify
 
 _TCL_AUTOCOMPLETE_TYPES = [
@@ -529,6 +531,47 @@ def _tcl_request_json(path, params, timeout=20):
     })
     with _tcl_urlreq.urlopen(req, timeout=timeout) as r:
         return _tcl_json.loads(r.read().decode("utf-8", "ignore"))
+
+
+def _tcl_parse_dt(value):
+    if not value:
+        return None
+    try:
+        text = str(value).strip()
+        if text.endswith("Z"):
+            text = text[:-1] + "+00:00"
+        dt = _tcl_datetime.fromisoformat(text)
+        paris = _tcl_ZoneInfo("Europe/Paris")
+        if dt.tzinfo is None:
+            return dt.replace(tzinfo=paris)
+        return dt.astimezone(paris)
+    except Exception:
+        return None
+
+
+def _tcl_filter_current_journeys(data, now=None):
+    if not isinstance(data, dict):
+        return data, 0
+
+    journeys = data.get("journeys")
+    if not isinstance(journeys, list):
+        return data, 0
+
+    now = now or _tcl_datetime.now(_tcl_ZoneInfo("Europe/Paris"))
+    current = []
+    expired = 0
+    for journey in journeys:
+        arrival = _tcl_parse_dt((journey or {}).get("arrival"))
+        if arrival is not None and arrival <= now:
+            expired += 1
+            continue
+        current.append(journey)
+
+    data = dict(data)
+    data["journeys"] = current
+    data["filteredExpired"] = expired
+    data["serverNow"] = now.isoformat()
+    return data, expired
 
 
 def _tcl_autocomplete_row(item):
@@ -611,7 +654,14 @@ def api_tcl_journeys():
         data = _tcl_request_json("journeys", params, timeout=25)
         if data.get("ok") is False:
             return _tcl_jsonify({"ok": False, "source": "official", "error": data.get("err") or "Erreur TCL"}), 502
-        return _tcl_jsonify({"ok": True, "source": "official", "data": data.get("data", data)})
+        official_data = data.get("data", data)
+        official_data, filtered_expired = _tcl_filter_current_journeys(official_data)
+        return _tcl_jsonify({
+            "ok": True,
+            "source": "official",
+            "data": official_data,
+            "filteredExpired": filtered_expired,
+        })
     except Exception as e:
         return _tcl_jsonify({"ok": False, "error": str(e)}), 502
 # --- /TCL official JSON itinerary engine ---

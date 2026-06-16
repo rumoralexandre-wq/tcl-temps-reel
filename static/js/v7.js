@@ -4722,7 +4722,8 @@ function itiSuggestionLabel(it){
 
     try{
       const official = await postJson("/api/tcl/journeys", payload);
-      const journeys = official?.data?.journeys || official?.journeys || [];
+      const rawJourneys = official?.data?.journeys || official?.journeys || [];
+      const journeys = filterCurrentJourneys(rawJourneys);
       if(official.ok && journeys.length){
         const result = {
           ok:true,
@@ -4736,6 +4737,11 @@ function itiSuggestionLabel(it){
         };
         state.result = result;
         renderResult(result);
+        return;
+      }
+      if(official.ok && Array.isArray(rawJourneys)){
+        state.result = null;
+        out.innerHTML = `<div class="iti-error">Aucun itinéraire actuel disponible. Les trajets déjà terminés sont masqués.</div>`;
         return;
       }
       console.warn("official itinerary failed", official);
@@ -4840,6 +4846,14 @@ function itiSuggestionLabel(it){
     const db = tclDate(b);
     if(!da || !db) return 0;
     return Math.max(0, Math.round((db - da) / 60000));
+  }
+
+  function filterCurrentJourneys(journeys){
+    const now = Date.now();
+    return (journeys || []).filter(journey => {
+      const arrival = tclDate(journey?.arrival);
+      return !arrival || arrival.getTime() > now;
+    });
   }
 
   function tclJourneyMinutes(journey){
