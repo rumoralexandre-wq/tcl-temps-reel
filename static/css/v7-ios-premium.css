@@ -1,0 +1,439 @@
+/* =========================================================
+   TCL V7 — iOS PREMIUM UX RESTORATION
+   Couche finale : safe areas, sheets, overflow, tap targets.
+   CSS only — aucun moteur métier.
+========================================================= */
+
+:root {
+  --v7-ios-tap: 44px;
+  --v7-ios-sheet-z: 55;
+  --v7-ios-overlay-z: 50;
+  --v7-ios-nav-z: 60;
+  --v7-ios-iti-z: 3000;
+  --v7-ios-modal-z: 4000;
+  --v7-ios-scroll-pad: calc(env(safe-area-inset-bottom, 0px) + 36px);
+}
+
+html,
+body,
+.v7-app {
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+}
+
+/* Titres : éviter troncature agressive sur iPhone */
+@media (max-width: 430px) {
+  .v7-detail-head h2,
+  #horairesTitle,
+  #trafficTitle,
+  #lineTitle,
+  .v7-section-sheet .v7-detail-head h2 {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    word-break: break-word !important;
+  }
+}
+
+/* ── Accueil : contrôles flottants ─────────────────────────── */
+@media (max-width: 767px) {
+  .v7-hamburger {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    flex-shrink: 0 !important;
+  }
+
+  body:not(.line-open):not(.traffic-open):not(.horaires-open):not(.itineraire-open) .v7-topbar {
+    pointer-events: none !important;
+  }
+
+  body:not(.line-open):not(.traffic-open):not(.horaires-open):not(.itineraire-open) .v7-topbar-header {
+    pointer-events: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    min-height: var(--v7-ios-tap) !important;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 8px) !important;
+    padding-left: max(12px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(12px, env(safe-area-inset-right, 0px)) !important;
+  }
+
+  body:not(.line-open):not(.traffic-open):not(.horaires-open):not(.itineraire-open) .v7-recenter-map {
+    top: calc(env(safe-area-inset-top, 0px) + 12px) !important;
+    right: max(14px, env(safe-area-inset-right, 0px)) !important;
+    bottom: auto !important;
+    width: var(--v7-ios-tap) !important;
+    height: var(--v7-ios-tap) !important;
+    min-width: var(--v7-ios-tap) !important;
+    min-height: var(--v7-ios-tap) !important;
+    z-index: 51 !important;
+  }
+
+  #v7HomeNearbyCard,
+  .v7-home-nearby-card {
+    left: max(12px, env(safe-area-inset-left, 0px)) !important;
+    right: max(12px, env(safe-area-inset-right, 0px)) !important;
+    width: auto !important;
+    max-width: calc(100vw - 24px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)) !important;
+    bottom: var(--v7-ios-scroll-pad) !important;
+    max-height: min(52dvh, calc(100dvh - env(safe-area-inset-top, 0px) - 120px)) !important;
+    overflow: hidden !important;
+  }
+
+  #v7HomeNearbyCard .v7-home-nearby-list {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    max-height: min(34dvh, 280px) !important;
+    padding-bottom: 8px !important;
+  }
+}
+
+/* ── Section sheets (Favoris, Lignes, Autour, Réglages) ─────── */
+@media (max-width: 767px) {
+  .v7-section-sheet {
+    height: calc(100dvh - max(12px, env(safe-area-inset-top, 0px))) !important;
+    max-height: calc(100dvh - max(12px, env(safe-area-inset-top, 0px))) !important;
+    z-index: var(--v7-ios-sheet-z) !important;
+    padding-bottom: 0 !important;
+  }
+
+  .v7-section-sheet .v7-detail-head {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 10px) !important;
+    padding-left: max(12px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(12px, env(safe-area-inset-right, 0px)) !important;
+  }
+
+  #lignesContent,
+  #autourContent,
+  #favorisContent,
+  #reglagensContent,
+  #trafficContent {
+    min-height: 0 !important;
+    flex: 1 1 auto !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    padding-bottom: var(--v7-ios-scroll-pad) !important;
+    padding-left: max(12px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(12px, env(safe-area-inset-right, 0px)) !important;
+  }
+
+  .v7-sheet-overlay {
+    z-index: var(--v7-ios-overlay-z) !important;
+  }
+}
+
+/* ── Info trafic + fiche ligne : plein écran iOS ───────────── */
+@media (max-width: 767px) {
+  body.traffic-open #trafficView.open,
+  body.line-open #lineView.open {
+    position: fixed !important;
+    inset: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    max-height: none !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    z-index: var(--v7-ios-sheet-z) !important;
+    padding: 0 !important;
+  }
+
+  body.traffic-open #trafficView .v7-detail-head,
+  body.line-open #lineView .v7-detail-head {
+    flex-shrink: 0 !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 2 !important;
+    padding: calc(env(safe-area-inset-top, 0px) + 10px) max(12px, env(safe-area-inset-right, 0px)) 12px max(12px, env(safe-area-inset-left, 0px)) !important;
+    margin-bottom: 0 !important;
+  }
+
+  body.traffic-open #trafficBack,
+  body.line-open #lineBack {
+    min-width: var(--v7-ios-tap) !important;
+    min-height: var(--v7-ios-tap) !important;
+  }
+
+  body.traffic-open #trafficContent,
+  body.line-open #lineContent {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    padding: 12px max(12px, env(safe-area-inset-right, 0px)) var(--v7-ios-scroll-pad) max(12px, env(safe-area-inset-left, 0px)) !important;
+  }
+
+  body.traffic-open #trafficList,
+  body.traffic-open #trafficList .widget-bubbles {
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .v7-traffic-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .v7-traffic-line-card {
+    min-height: 88px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    touch-action: manipulation !important;
+  }
+}
+
+/* ── Horaires ──────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  body.horaires-open #horairesView.open {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    max-height: none !important;
+    border-radius: 0 !important;
+    z-index: var(--v7-ios-sheet-z) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+
+  body.horaires-open #horairesView .hor-page-head,
+  body.horaires-open #horairesView .v7-detail-head {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 12px) !important;
+    flex-shrink: 0 !important;
+  }
+
+  body.horaires-open #horairesContent.hor-page-content,
+  body.horaires-open #horairesContent {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding-bottom: var(--v7-ios-scroll-pad) !important;
+  }
+
+  #horairesBack,
+  .hor-back-btn {
+    min-width: var(--v7-ios-tap) !important;
+    min-height: var(--v7-ios-tap) !important;
+  }
+}
+
+/* ── Itinéraire ────────────────────────────────────────────── */
+@media (max-width: 430px) {
+  .v7-itineraire-view.open {
+    z-index: var(--v7-ios-iti-z) !important;
+  }
+
+  .iti-top {
+    padding: calc(env(safe-area-inset-top, 0px) + 12px) max(16px, env(safe-area-inset-right, 0px)) 14px max(16px, env(safe-area-inset-left, 0px)) !important;
+    gap: 12px !important;
+  }
+
+  .iti-top h2 {
+    font-size: clamp(24px, 7vw, 32px) !important;
+  }
+
+  .iti-top p {
+    font-size: 13px !important;
+  }
+
+  .iti-main {
+    padding: 16px max(14px, env(safe-area-inset-left, 0px)) var(--v7-ios-scroll-pad) max(14px, env(safe-area-inset-right, 0px)) !important;
+  }
+
+  .iti-input-wrap {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+  }
+
+  .iti-position-btn {
+    min-width: var(--v7-ios-tap) !important;
+    padding: 0 12px !important;
+    white-space: nowrap !important;
+  }
+
+  .iti-result-toolbar {
+    grid-template-columns: minmax(72px, auto) minmax(0, 1fr) minmax(72px, auto) !important;
+  }
+}
+
+.iti-route-popup {
+  z-index: var(--v7-ios-modal-z) !important;
+  padding: max(12px, env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-right, 0px)) max(12px, env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px)) !important;
+}
+
+@media (max-width: 620px) {
+  .iti-route-popup-card {
+    max-height: min(88dvh, calc(100dvh - env(safe-area-inset-top, 0px) - 16px)) !important;
+    padding-bottom: var(--v7-ios-scroll-pad) !important;
+  }
+
+  .iti-route-popup-head strong {
+    font-size: clamp(28px, 8vw, 36px) !important;
+  }
+}
+
+/* ── Vue immersive véhicule ────────────────────────────────── */
+@media (max-width: 767px) {
+  body.vehicle-portrait-open .vehicle-portrait-panel {
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    padding-top: env(safe-area-inset-top, 0px) !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+  }
+
+  body.vehicle-portrait-open .vehicle-portrait-topbar {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 8px) !important;
+    padding-left: max(12px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(12px, env(safe-area-inset-right, 0px)) !important;
+  }
+
+  body.vehicle-portrait-open .vehicle-portrait-close {
+    min-width: var(--v7-ios-tap) !important;
+    min-height: var(--v7-ios-tap) !important;
+  }
+
+  body.vehicle-portrait-open .vehicle-portrait-content {
+    padding-bottom: var(--v7-ios-scroll-pad) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
+
+/* ── Timeline / cartes bus ─────────────────────────────────── */
+@media (max-width: 767px) {
+  body.line-open .live-card,
+  body.vehicle-portrait-open .vehicle-portrait-card.live-card {
+    max-width: 100% !important;
+  }
+
+  body.line-open #lineContent .live-card:last-child,
+  body.line-open #lineContent > *:last-child {
+    margin-bottom: 8px !important;
+  }
+
+  body.line-open .tcl-timeline-v3,
+  body.vehicle-portrait-open .vehicle-timeline-v-rail {
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
+
+/* ── Sidebar mobile ────────────────────────────────────────── */
+@media (max-width: 767px) {
+  .v7-sidebar {
+    z-index: var(--v7-ios-nav-z) !important;
+    padding-top: env(safe-area-inset-top, 0px) !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+  }
+
+  .v7-sidebar-header {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 8px) !important;
+  }
+
+  .v7-sidebar-overlay {
+    z-index: calc(var(--v7-ios-nav-z) - 1) !important;
+  }
+}
+
+/* ── Tap targets globaux (panneaux visibles) ───────────────── */
+.v7-section-back,
+#trafficBack,
+#lineBack,
+#horairesBack,
+.iti-back,
+.iti-position-btn,
+.iti-submit,
+.iti-mode-tabs button,
+.iti-choice,
+.v7-traffic-line-card,
+.v7-ligne-pill,
+.hor-line-pill,
+.hor-stop-line-btn,
+.hor-nearby-stop,
+.vehicle-fav-btn,
+.line-fav-btn {
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+@media (max-width: 767px) {
+  .v7-detail-head button,
+  .v7-section-back,
+  #trafficBack,
+  #lineBack,
+  #horairesBack,
+  .iti-back,
+  .iti-position-btn,
+  .iti-submit,
+  .iti-mode-tabs button,
+  .v7-nav-item {
+    min-height: var(--v7-ios-tap) !important;
+  }
+}
+
+/* Desktop : ne pas casser le layout sidebar permanente */
+@media (min-width: 768px) {
+  .v7-section-sheet,
+  body.traffic-open #trafficView.open,
+  body.line-open #lineView.open,
+  body.horaires-open #horairesView.open {
+    max-height: 100dvh !important;
+  }
+
+  #lignesContent,
+  #autourContent,
+  #favorisContent,
+  #reglagensContent,
+  #trafficContent,
+  #lineContent,
+  #horairesContent {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px) !important;
+  }
+}
+
+/* ── Lignes : grille sans débordement 390px / panneau droit ─── */
+#lignesContent .v7-lignes-grid {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 767px) {
+  body.lignes-open #lignesView.open #lignesContent .v7-lignes-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  body.lignes-open #lignesView.open #lignesContent .v7-ligne-pill {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 12px 8px !important;
+  }
+}
+
+@media (min-width: 768px) {
+  body.lignes-open #lignesView.open #lignesContent .v7-lignes-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  body.lignes-open #lignesView.open #lignesContent .v7-ligne-pill {
+    max-width: 100% !important;
+  }
+}

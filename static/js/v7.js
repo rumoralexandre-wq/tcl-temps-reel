@@ -2288,6 +2288,15 @@ document.addEventListener("click", function(e){
     }
     closeAllSectionPanels();
 
+    if(section !== "trafic"){
+      document.body.classList.remove("traffic-open");
+      qs("#trafficView")?.classList.remove("open");
+    }
+    if(section !== "home" && section !== "trafic"){
+      document.body.classList.remove("line-open");
+      qs("#lineView")?.classList.remove("open");
+    }
+
     switch(section){
       case "home":
         if(typeof home === "function") home();
