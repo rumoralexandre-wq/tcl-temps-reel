@@ -487,59 +487,131 @@ def api_bt_path():
     except Exception as e:
         return jsonify({"p": [], "error": str(e)})
 
-# --- TCL official hidden itinerary engine ---
+# --- TCL official JSON itinerary engine ---
 import json as _tcl_json
 import urllib.parse as _tcl_urlparse
 import urllib.request as _tcl_urlreq
 from flask import request as _tcl_request, jsonify as _tcl_jsonify
 
-@app.post("/api/tcl/journeys")
-def api_tcl_journeys():
-    payload = _tcl_request.get_json(silent=True) or {}
+_TCL_AUTOCOMPLETE_TYPES = [
+    {"sub": "ter", "type": "area"},
+    {"sub": "tcl", "type": "area"},
+    {"sub": "tcl", "type": "poi"},
+    {"sub": "tcl", "type": "address"},
+    {"sub": "tcl", "type": "boundary"},
+]
 
-    def enc(v):
-        if isinstance(v, (dict, list)):
-            return _tcl_json.dumps(v, ensure_ascii=False, separators=(",", ":"))
-        if isinstance(v, bool):
-            return "1" if v else "0"
-        return str(v)
+_TCL_TRANSPORT_MODES = [
+    "metro", "funicular", "tramway", "boat", "bus", "tod", "train", "car-region"
+]
 
-    params = {
-        "from": payload.get("from"),
-        "to": payload.get("to"),
-        "fromId": payload.get("fromId", ""),
-        "fromType": payload.get("fromType", ""),
-        "fromName": payload.get("fromName", ""),
-        "toId": payload.get("toId", ""),
-        "toType": payload.get("toType", ""),
-        "toName": payload.get("toName", ""),
-        "datetime": payload.get("datetime"),
-        "isArrivalTime": False,
-        "transportModes": ["metro", "funicular", "tramway", "bus", "train"],
-        "walk": "normal",
-        "pmr": False,
-        "language": "fr",
-        "car": False,
-        "carPooling": False,
-        "dataFreshness": False,
-        "algorithm": "FASTEST",
-    }
 
-    qs = _tcl_urlparse.urlencode({k: enc(v) for k, v in params.items() if v not in (None, "")})
-    url = "https://carte-interactive.tcl.fr/api/interface/tcl/journeys?" + qs
+def _tcl_enc(v):
+    if isinstance(v, (dict, list)):
+        return _tcl_json.dumps(v, ensure_ascii=False, separators=(",", ":"))
+    if isinstance(v, bool):
+        return "1" if v else "0"
+    return str(v)
+
+
+def _tcl_request_json(path, params, timeout=20):
+    clean = {k: v for k, v in params.items() if v not in (None, "")}
+    qs = _tcl_urlparse.urlencode({k: _tcl_enc(v) for k, v in clean.items()})
+    url = "https://carte-interactive.tcl.fr/api/interface/tcl/" + path
+    if qs:
+        url += "?" + qs
 
     req = _tcl_urlreq.Request(url, headers={
         "User-Agent": "Mozilla/5.0",
         "Accept": "application/json,text/plain,*/*",
-        "Referer": "https://carte-interactive.tcl.fr/public-transport/journeys",
+        "Referer": "https://carte-interactive.tcl.fr/all/journeys?go=1&lang=fr",
         "Origin": "https://carte-interactive.tcl.fr",
-        "X-CSRF": "1",
     })
+    with _tcl_urlreq.urlopen(req, timeout=timeout) as r:
+        return _tcl_json.loads(r.read().decode("utf-8", "ignore"))
+
+
+def _tcl_autocomplete_row(item):
+    kind = item.get("type") or ""
+    obj = item.get(kind) or {}
+    geo = obj.get("geojson") or {}
+    coords = geo.get("coordinates") or []
+    lon = coords[0] if len(coords) >= 2 else None
+    lat = coords[1] if len(coords) >= 2 else None
+    boundary = obj.get("boundary") or {}
+    label_type = "stop" if kind == "area" else kind
+    meta_by_type = {
+        "area": "Arrêt TCL",
+        "address": "Adresse",
+        "poi": "Lieu",
+        "boundary": "Commune",
+    }
+    return {
+        "type": label_type,
+        "tclType": kind,
+        "sub": item.get("sub") or "tcl",
+        "id": obj.get("id") or "",
+        "name": obj.get("name") or obj.get("long_name") or "Lieu",
+        "address": obj.get("long_name") or boundary.get("name") or "",
+        "meta": meta_by_type.get(kind, "Lieu"),
+        "lat": lat,
+        "lon": lon,
+        "rawType": kind,
+    }
+
+
+@app.get("/api/tcl/autocomplete")
+def api_tcl_autocomplete():
+    q = (_tcl_request.args.get("q") or _tcl_request.args.get("query") or "").strip()
+    if len(q) < 2:
+        return _tcl_jsonify({"ok": True, "results": []})
+    try:
+        raw = _tcl_request_json("autocomplete", {
+            "query": q,
+            "types": _TCL_AUTOCOMPLETE_TYPES,
+        }, timeout=12)
+        rows = [_tcl_autocomplete_row(x) for x in raw if isinstance(x, dict)]
+        rows = [x for x in rows if x.get("lat") is not None and x.get("lon") is not None]
+        return _tcl_jsonify({"ok": True, "source": "official", "results": rows})
+    except Exception as e:
+        return _tcl_jsonify({"ok": False, "error": str(e), "results": []}), 502
+
+
+@app.route("/api/tcl/journeys", methods=["GET", "POST"])
+def api_tcl_journeys():
+    payload = _tcl_request.get_json(silent=True) if _tcl_request.method == "POST" else None
+    payload = payload or _tcl_request.args.to_dict()
+
+    params = {
+        "from": payload.get("from"),
+        "to": payload.get("to"),
+        "fromId": payload.get("fromId") or None,
+        "fromType": payload.get("fromType") or None,
+        "fromName": payload.get("fromName") or None,
+        "toId": payload.get("toId") or None,
+        "toType": payload.get("toType") or None,
+        "toName": payload.get("toName") or None,
+        "datetime": payload.get("datetime"),
+        "isArrivalTime": bool(payload.get("isArrivalTime")),
+        "transportModes": payload.get("transportModes") or _TCL_TRANSPORT_MODES,
+        "walk": payload.get("walk") or "normal",
+        "bike": payload.get("bike") or {"type": ["bike", "bss"], "speed": "normal", "isElectric": False},
+        "pmr": bool(payload.get("pmr")),
+        "language": "fr",
+        "car": bool(payload.get("car", True)),
+        "carPooling": bool(payload.get("carPooling")),
+        "dataFreshness": bool(payload.get("dataFreshness")),
+        "algorithm": payload.get("algorithm") or "FASTEST",
+    }
+
+    if not params["from"] or not params["to"]:
+        return _tcl_jsonify({"ok": False, "error": "Départ ou destination manquant"}), 400
 
     try:
-        with _tcl_urlreq.urlopen(req, timeout=25) as r:
-            data = _tcl_json.loads(r.read().decode("utf-8", "ignore"))
+        data = _tcl_request_json("journeys", params, timeout=25)
+        if data.get("ok") is False:
+            return _tcl_jsonify({"ok": False, "source": "official", "error": data.get("err") or "Erreur TCL"}), 502
         return _tcl_jsonify({"ok": True, "source": "official", "data": data.get("data", data)})
     except Exception as e:
         return _tcl_jsonify({"ok": False, "error": str(e)}), 502
-# --- /TCL official hidden itinerary engine ---
+# --- /TCL official JSON itinerary engine ---

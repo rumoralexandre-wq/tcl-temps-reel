@@ -4293,6 +4293,16 @@ document.addEventListener("click", function(e){
     return r.json();
   }
 
+  async function postJson(url, payload){
+    const r = await fetch(url, {
+      method:"POST",
+      cache:"no-store",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(payload || {})
+    });
+    return r.json();
+  }
+
   function closeOther(){
     document.body.classList.remove("line-open","traffic-open","lignes-open","favoris-open","reglages-open","autour-open","vehicle-portrait-open","sidebar-open","horaires-open");
     ["lineView","trafficView","lignesView","autourView","favorisView","reglagensView","horairesView"].forEach(id => qs("#"+id)?.classList.remove("open"));
@@ -4403,11 +4413,45 @@ document.addEventListener("click", function(e){
     return Math.sqrt(dx*dx + dy*dy);
   }
 
-  async function searchAddresses(q){
+  function tclTypeLabel(type){
+    if(type === "stop" || type === "area") return "Arrêt TCL";
+    if(type === "address") return "Adresse";
+    if(type === "poi") return "Lieu";
+    if(type === "boundary") return "Commune";
+    return "Lieu";
+  }
+
+  async function searchTclAutocomplete(q){
+    try{
+      const j = await getJson("/api/tcl/autocomplete?q=" + encodeURIComponent(q));
+      if(j.ok && Array.isArray(j.results)){
+        return j.results.map(r => ({
+          type:r.type || "place",
+          tclType:r.tclType || r.rawType || (r.type === "stop" ? "area" : r.type),
+          id:r.id || "",
+          name:r.name || "Lieu",
+          address:r.address || "",
+          distance:r.distance,
+          meta:r.meta || tclTypeLabel(r.type || r.tclType),
+          lat:Number(r.lat),
+          lon:Number(r.lon)
+        })).filter(x => Number.isFinite(x.lat) && Number.isFinite(x.lon));
+      }
+    }catch(e){
+      console.error("tcl autocomplete failed", e);
+    }
     return [];
   }
 
+  async function searchAddresses(q){
+    const rows = await searchTclAutocomplete(q);
+    return rows.filter(r => r.tclType === "address" || r.tclType === "poi" || r.tclType === "boundary");
+  }
+
   async function searchStops(q){
+    const official = await searchTclAutocomplete(q);
+    if(official.length) return official;
+
     try{
       let searchUrl = "/api/itineraire/search?q=" + encodeURIComponent(q) + "&limit=12";
       if(state.from && Number.isFinite(Number(state.from.lat)) && Number.isFinite(Number(state.from.lon))){
@@ -4416,6 +4460,7 @@ document.addEventListener("click", function(e){
       const j = await getJson(searchUrl);
       return (j.results || []).map(r => ({
         type:r.type || "place",
+        tclType:r.type === "stop" ? "area" : (r.type || "address"),
         id:r.id || "",
         name:r.name || "Lieu",
         address:r.address || "",
@@ -4513,12 +4558,13 @@ document.addEventListener("click", function(e){
         results.innerHTML = rows.map(r => `
           <button type="button" class="iti-choice"
             data-type="${esc(r.type)}"
+            data-tcl-type="${esc(r.tclType || (r.type === "stop" ? "area" : r.type))}"
             data-id="${esc(r.id || "")}"
             data-name="${esc(r.name)}"
             data-lat="${esc(r.lat)}"
             data-lon="${esc(r.lon)}">
             <strong>${esc(r.name)}</strong>
-            <small>${r.type === "stop" ? "Arrêt TCL" : "Lieu"} · ${esc(r.address || r.meta || "")}${r.distance !== undefined && r.distance !== null ? " · " + esc(r.distance) + " m" : ""}</small>
+            <small>${esc(r.meta || tclTypeLabel(r.type))} · ${esc(r.address || "")}${r.distance !== undefined && r.distance !== null ? " · " + esc(r.distance) + " m" : ""}</small>
           </button>
         `).join("") || `<div class="iti-empty">Aucun résultat trouvé.</div>`;
 
@@ -4526,6 +4572,7 @@ document.addEventListener("click", function(e){
           btn.addEventListener("click", () => {
             state[key] = {
               type:btn.dataset.type,
+              tclType:btn.dataset.tclType || (btn.dataset.type === "stop" ? "area" : btn.dataset.type),
               id:btn.dataset.id || null,
               name:btn.dataset.name,
               lat:Number(btn.dataset.lat),
@@ -4565,7 +4612,7 @@ document.addEventListener("click", function(e){
       const lat = pos.coords.latitude;
       const lon = pos.coords.longitude;
       const name = await reverseAddress(lat, lon) || "Position détectée";
-      state.from = {type:"address", id:null, name, lat, lon};
+      state.from = {type:"address", tclType:"address", id:null, name, lat, lon};
       if(input) input.value = name;
     }, () => {
       if(input) input.value = "";
@@ -4583,7 +4630,53 @@ function itiSuggestionLabel(it){
   return `${icon} <span><b>${esc(name)}</b>${address}</span>${dist}`;
 }
 
-async function plan(offsetMinutes){
+  function itiSelectedIso(offsetMinutes){
+    const date = qs("#itiDateInput")?.value || todayValue();
+    const time = qs("#itiTimeInput")?.value || nowTimeValue();
+    const d = new Date(`${date}T${time}:00`);
+    if(Number.isFinite(Number(offsetMinutes))) d.setMinutes(d.getMinutes() + Number(offsetMinutes));
+    return Number.isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
+  }
+
+  function itiTclType(item){
+    if(!item) return "address";
+    return item.tclType || (item.type === "stop" ? "area" : item.type) || "address";
+  }
+
+  function itiTclUsableId(item){
+    if(!item || !item.id) return null;
+    const type = itiTclType(item);
+    const id = String(item.id);
+    if(type === "address") return null;
+    if(id.includes(";")) return null;
+    return id;
+  }
+
+  function itiTclPoint(item){
+    return {lat:Number(item.lat), lng:Number(item.lon)};
+  }
+
+  async function planLocalFallback(out, time, date, mode, offsetMinutes){
+    const fallbackTime = offsetMinutes ? addMinutesToTime(time, offsetMinutes) : time;
+    const destParams = state.to.type === "stop" && state.to.id
+      ? `to_id=${encodeURIComponent(state.to.id)}`
+      : `to_lat=${encodeURIComponent(state.to.lat)}&to_lon=${encodeURIComponent(state.to.lon)}`;
+
+    const url = `/api/itineraire/plan?from_lat=${encodeURIComponent(state.from.lat)}&from_lon=${encodeURIComponent(state.from.lon)}&${destParams}&time=${encodeURIComponent(fallbackTime)}&mode=${encodeURIComponent(mode)}&date=${encodeURIComponent(date)}`;
+    const data = await getJson(url);
+
+    if(!data.ok){
+      state.result = null;
+      out.innerHTML = `<div class="iti-error">${esc(data.error || "Aucun itinéraire disponible.")}</div>`;
+      return;
+    }
+
+    data.source = "local-fallback";
+    state.result = data;
+    renderResult(data);
+  }
+
+  async function plan(offsetMinutes){
     const out = qs("#itiOutput");
     if(!out) return;
 
@@ -4598,27 +4691,58 @@ async function plan(offsetMinutes){
     }
 
     let time = qs("#itiTimeInput")?.value || nowTimeValue();
-    if(offsetMinutes) time = addMinutesToTime(time, offsetMinutes);
-
     const date = qs("#itiDateInput")?.value || "";
     const mode = state.mode || "depart";
     out.innerHTML = `<div class="iti-loading">Calcul du meilleur itinéraire…</div>`;
 
-    const destParams = state.to.type === "stop" && state.to.id
-      ? `to_id=${encodeURIComponent(state.to.id)}`
-      : `to_lat=${encodeURIComponent(state.to.lat)}&to_lon=${encodeURIComponent(state.to.lon)}`;
+    const payload = {
+      from:itiTclPoint(state.from),
+      to:itiTclPoint(state.to),
+      fromType:itiTclType(state.from),
+      fromName:state.from.name || "Départ",
+      toType:itiTclType(state.to),
+      toName:state.to.name || "Destination",
+      datetime:itiSelectedIso(offsetMinutes || 0),
+      isArrivalTime:mode === "arrive",
+      transportModes:["metro","funicular","tramway","boat","bus","tod","train","car-region"],
+      walk:"normal",
+      bike:{type:["bike","bss"], speed:"normal", isElectric:false},
+      pmr:false,
+      car:true,
+      carPooling:false,
+      dataFreshness:false,
+      algorithm:"FASTEST"
+    };
 
-    const url = `/api/itineraire/plan?from_lat=${encodeURIComponent(state.from.lat)}&from_lon=${encodeURIComponent(state.from.lon)}&${destParams}&time=${encodeURIComponent(time)}&mode=${encodeURIComponent(mode)}&date=${encodeURIComponent(date)}`;
-    const data = await getJson(url);
+    const fromId = itiTclUsableId(state.from);
+    const toId = itiTclUsableId(state.to);
+    if(fromId) payload.fromId = fromId;
+    if(toId) payload.toId = toId;
 
-    if(!data.ok){
-      state.result = null;
-      out.innerHTML = `<div class="iti-error">${esc(data.error || "Aucun itinéraire disponible.")}</div>`;
-      return;
+    try{
+      const official = await postJson("/api/tcl/journeys", payload);
+      const journeys = official?.data?.journeys || official?.journeys || [];
+      if(official.ok && journeys.length){
+        const result = {
+          ok:true,
+          source:"official",
+          mode,
+          requested_arrival:mode === "arrive" ? time : "",
+          journeys,
+          prev:official.data?.prev || null,
+          next:official.data?.next || null,
+          payload
+        };
+        state.result = result;
+        renderResult(result);
+        return;
+      }
+      console.warn("official itinerary failed", official);
+    }catch(e){
+      console.error("official itinerary unavailable", e);
     }
 
-    state.result = data;
-    renderResult(data);
+    await planLocalFallback(out, time, date, mode, offsetMinutes);
   }
 
 
@@ -4667,6 +4791,11 @@ async function plan(offsetMinutes){
     const out = qs("#itiOutput");
     if(!out) return;
 
+    if(Array.isArray(data.journeys)){
+      renderOfficialResult(data);
+      return;
+    }
+
     out.innerHTML = `
       <section class="iti-result-hero">
         <span>${data.mode === "arrive" ? "Arriver avant " + esc(data.requested_arrival || data.arrival) : "Partir à " + esc(data.recommended_departure || data.departure)}</span>
@@ -4690,6 +4819,153 @@ async function plan(offsetMinutes){
     qs("[data-iti-later]")?.addEventListener("click", () => plan(30));
 
     qsa(".iti-step-card").forEach(card => {
+      card.addEventListener("click", () => card.classList.toggle("open"));
+    });
+  }
+
+  function tclDate(v){
+    const d = new Date(v);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+
+  function tclHm(v){
+    const d = tclDate(v);
+    if(!d) return "—";
+    return String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0");
+  }
+
+  function tclMinutes(a, b){
+    const da = tclDate(a);
+    const db = tclDate(b);
+    if(!da || !db) return 0;
+    return Math.max(0, Math.round((db - da) / 60000));
+  }
+
+  function tclJourneyMinutes(journey){
+    return tclMinutes(journey.departure, journey.arrival);
+  }
+
+  function tclModeLabel(section){
+    const type = section?.type || "";
+    if(type === "walk") return "Marche";
+    if(type === "bike") return "Vélo";
+    if(type === "car") return "Voiture";
+    if(type === "public-transport" || type === "on-demand-transport"){
+      return section?.line?.code ? `Ligne ${section.line.code}` : "Transport";
+    }
+    return "Trajet";
+  }
+
+  function tclSectionSummary(section){
+    if(section?.type === "public-transport" || section?.type === "on-demand-transport"){
+      return `${section?.from?.name || "Départ"} → ${section?.to?.name || "Arrivée"}`;
+    }
+    const len = Number(section?.length || section?.geojson?.properties?.[0]?.length || 0);
+    return `${section?.from?.name || "Départ"} → ${section?.to?.name || "Arrivée"}${len ? " · " + Math.round(len) + " m" : ""}`;
+  }
+
+  function tclSectionHtml(section){
+    const isTransit = section?.type === "public-transport" || section?.type === "on-demand-transport";
+    const minutes = tclMinutes(section?.departure, section?.arrival);
+    const line = section?.line || {};
+    const bg = "#" + String(line.color || "0ea5e9").replace(/^#/, "");
+    const fg = "#" + String(line.textColor || "ffffff").replace(/^#/, "");
+    const equipment = [
+      ...(section?.from?.equipmentDetails || []),
+      ...(section?.to?.equipmentDetails || [])
+    ].filter(x => x && x.status && x.status !== "available");
+    const stops = Array.isArray(section?.intermediateStops) ? section.intermediateStops.length : 0;
+
+    if(isTransit){
+      return `
+        <article class="iti-timeline-step transit">
+          <div class="iti-line-badge" style="--line-bg:${esc(bg)};--line-fg:${esc(fg)}">${esc(line.code || "TCL")}</div>
+          <div class="iti-step-card" role="button" tabindex="0">
+            <div class="iti-step-title">
+              <strong>${esc(tclHm(section.departure))} → ${esc(tclHm(section.arrival))}</strong>
+              <span>${esc(minutes)} min</span>
+            </div>
+            <p>${esc(tclSectionSummary(section))}</p>
+            <small>Direction ${esc(section.headsign || section.direction?.name || "non précisée")}</small>
+            <div class="iti-step-more">
+              <div><strong>Ligne :</strong> ${esc(line.code || "TCL")}</div>
+              <div><strong>Mode :</strong> ${esc(line.mode || "transport")}</div>
+              <div><strong>Montée :</strong> ${esc(section?.from?.name || "—")} à ${esc(tclHm(section.departure))}</div>
+              <div><strong>Descente :</strong> ${esc(section?.to?.name || "—")} à ${esc(tclHm(section.arrival))}</div>
+              <div><strong>Arrêts intermédiaires :</strong> ${esc(stops)}</div>
+              ${equipment.length ? `<div><strong>Info accessibilité :</strong> ${esc(equipment.map(x => x.name || x.cause || "Équipement indisponible").join(" · "))}</div>` : ""}
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    return `
+      <article class="iti-timeline-step walk">
+        <div class="iti-dot">${section?.type === "bike" ? "◇" : "↗"}</div>
+        <div class="iti-step-card" role="button" tabindex="0">
+          <div class="iti-step-title">
+            <strong>${esc(tclModeLabel(section))}</strong>
+            <span>${esc(minutes)} min</span>
+          </div>
+          <p>${esc(tclSectionSummary(section))}</p>
+          <small>${esc(tclHm(section?.departure))} → ${esc(tclHm(section?.arrival))}</small>
+          <div class="iti-step-more">
+            ${(section?.directions || []).slice(0,6).map(d => `<div>${esc(d.instruction || d.name || "")}</div>`).join("") || `<div>${esc(tclSectionSummary(section))}</div>`}
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  function tclJourneyHtml(journey, idx){
+    const minutes = tclJourneyMinutes(journey);
+    const sections = journey.sections || [];
+    const transitLines = sections
+      .filter(s => s.line?.code)
+      .map(s => s.line.code)
+      .filter((v, i, a) => a.indexOf(v) === i);
+    const transfers = Math.max(0, transitLines.length - 1);
+    const title = idx === 0 ? "Meilleur trajet" : `Alternative ${idx + 1}`;
+
+    return `
+      <article class="iti-official-journey ${idx === 0 ? "best" : ""}">
+        <div class="iti-result-hero">
+          <span>${esc(title)} · ${esc(tclHm(journey.departure))} → ${esc(tclHm(journey.arrival))}</span>
+          <strong>${esc(minutes)} min</strong>
+          <p>${transitLines.length ? "Lignes " + esc(transitLines.join(" + ")) : "Trajet direct"} · ${esc(transfers)} correspondance${transfers > 1 ? "s" : ""}</p>
+        </div>
+        <section class="iti-timeline">
+          ${sections.map(tclSectionHtml).join("")}
+        </section>
+      </article>
+    `;
+  }
+
+  function renderOfficialResult(data){
+    const out = qs("#itiOutput");
+    if(!out) return;
+    const journeys = (data.journeys || []).slice(0,5);
+    const best = journeys[0];
+
+    if(!best){
+      out.innerHTML = `<div class="iti-error">Aucun itinéraire disponible.</div>`;
+      return;
+    }
+
+    out.innerHTML = `
+      <section class="iti-explain">Trajets calculés avec le moteur TCL temps réel, affichés dans l’interface V7.</section>
+      <div class="iti-actions">
+        <button type="button" data-iti-earlier>Partir plus tôt</button>
+        <button type="button" data-iti-later>Partir plus tard</button>
+      </div>
+      ${journeys.map(tclJourneyHtml).join("")}
+    `;
+
+    qs("[data-iti-earlier]")?.addEventListener("click", () => plan(-30));
+    qs("[data-iti-later]")?.addEventListener("click", () => plan(30));
+
+    qsa(".iti-step-card", out).forEach(card => {
       card.addEventListener("click", () => card.classList.toggle("open"));
     });
   }
