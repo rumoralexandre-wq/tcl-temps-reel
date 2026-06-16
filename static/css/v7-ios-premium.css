@@ -1269,3 +1269,12 @@ body:not(.horaires-open) #horairesView.open {
     opacity: 1 !important;
   }
 }
+
+/* HOTFIX 20260617 — Home dark mode : topbar carte sombre */
+@media (prefers-color-scheme: dark) {
+  body.v7-home:not(.traffic-open):not(.line-open):not(.lignes-open):not(.favoris-open):not(.autour-open):not(.reglages-open):not(.horaires-open):not(.itineraire-open):not(.vehicle-portrait-open):not(.sidebar-open) .v7-topbar-header {
+    background: rgba(15, 23, 42, .82) !important;
+    border: 1px solid rgba(148, 163, 184, .22) !important;
+    box-shadow: 0 16px 44px rgba(0, 0, 0, .45) !important;
+  }
+}
