@@ -20,6 +20,9 @@ function formatTrafficPeriod(a){
 
 function setViewMode(mode){
  document.body.classList.remove("line-open","traffic-open");
+ if(mode !== "home"){
+  document.body.classList.remove("sidebar-open");
+ }
 
  if(mode==="line"){
   document.body.classList.add("line-open");
@@ -1244,6 +1247,12 @@ function home(){
  }catch(e){}
 }
 if($("#lineBack")) $("#lineBack").onclick=home;if($("#trafficBack")) $("#trafficBack").onclick=home;
+["lineBack","trafficBack"].forEach(function(id){
+ const b=document.getElementById(id);
+ if(!b) return;
+ if(!b.getAttribute("aria-label")) b.setAttribute("aria-label","Retour");
+ if((b.textContent||"").trim().length>2) b.textContent="";
+});
 const mainSearchInput = $("#q");
 if(mainSearchInput){
  mainSearchInput.oninput=()=>{
@@ -1828,7 +1837,7 @@ try{
       <div class="vehicle-portrait-backdrop"></div>
       <div class="vehicle-portrait-panel">
           <div class="vehicle-portrait-topbar">
-            <button class="vehicle-portrait-close" type="button">← Retour</button>
+            <button class="vehicle-portrait-close" type="button" aria-label="Retour"></button>
             <div class="vehicle-portrait-title" id="vehiclePortraitTitle"></div>
             <div class="vehicle-portrait-spacer"></div>
           </div>
@@ -2021,7 +2030,16 @@ try{
 
     try{
       const view = document.querySelector("#vehiclePortraitView");
-      if(view) view.classList.remove("open");
+      if(view){
+        view.classList.remove("open");
+        view.style.display = "";
+        view.style.visibility = "";
+      }
+      const backdrop = document.querySelector(".vehicle-portrait-backdrop");
+      if(backdrop){
+        backdrop.style.opacity = "";
+        backdrop.style.pointerEvents = "";
+      }
       // Clear any stale inline display:none on the inner panel to avoid backdrop-stuck bug
       const innerPanel = document.querySelector(".vehicle-portrait-panel");
       if(innerPanel) innerPanel.style.display = "";

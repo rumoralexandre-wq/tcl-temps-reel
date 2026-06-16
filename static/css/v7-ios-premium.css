@@ -164,6 +164,20 @@ body,
     min-height: var(--v7-ios-tap) !important;
   }
 
+  body.traffic-open .v7-detail-head,
+  body.line-open .v7-detail-head {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+  }
+
+  body.traffic-open #trafficTitle,
+  body.line-open #lineTitle {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+  }
+
   body.traffic-open #trafficContent,
   body.line-open #lineContent {
     flex: 1 1 auto !important;
@@ -407,14 +421,60 @@ body,
   }
 }
 
-/* ── Lignes : grille sans débordement 390px / panneau droit ─── */
+/* ── Lignes : layout + F1/F2 sans débordement ─── */
+body.lignes-open #lignesView.open #lignesContent > .v7-lignes-body {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  min-height: auto !important;
+}
+
+body.lignes-open #lignesView.open #lignesContent > * {
+  min-height: auto !important;
+  width: 100% !important;
+}
+
+body.lignes-open #lignesView.open #lignesContent .v7-lignes-category {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
 #lignesContent .v7-lignes-grid {
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
 }
 
+body.lignes-open #lignesView.open {
+  display: flex !important;
+  flex-direction: column !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+body.lignes-open #lignesView.open .v7-detail-head {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 2 !important;
+  flex: 0 0 auto !important;
+}
+
+body.lignes-open #lignesView.open #lignesContent {
+  flex: 0 0 auto !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 56px) !important;
+}
+
 @media (max-width: 767px) {
+  body.lignes-open #lignesView.open {
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+  }
+
   body.lignes-open #lignesView.open #lignesContent .v7-lignes-grid {
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 10px !important;
@@ -436,4 +496,434 @@ body,
   body.lignes-open #lignesView.open #lignesContent .v7-ligne-pill {
     max-width: 100% !important;
   }
+}
+
+/* =========================================================
+   VISUAL STATES — overlays, chrome, headers (priorité max)
+========================================================= */
+
+/* Overlays : strictement liés à l'état body */
+.v7-sidebar-overlay,
+.v7-sheet-overlay {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+body.sidebar-open .v7-sidebar-overlay {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+}
+
+body.lignes-open .v7-sheet-overlay,
+body.favoris-open .v7-sheet-overlay,
+body.autour-open .v7-sheet-overlay,
+body.reglages-open .v7-sheet-overlay {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* Pas de double flou carte */
+.v7-map-dim {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Masquer tout le chrome carte hors accueil pur */
+body.sidebar-open .v7-topbar,
+body.sidebar-open .v7-topbar-header,
+body.sidebar-open .v7-topbar-logo,
+body.traffic-open .v7-topbar,
+body.line-open .v7-topbar,
+body.lignes-open .v7-topbar,
+body.favoris-open .v7-topbar,
+body.autour-open .v7-topbar,
+body.reglages-open .v7-topbar,
+body.horaires-open .v7-topbar,
+body.itineraire-open .v7-topbar,
+body.vehicle-portrait-open .v7-topbar,
+body.traffic-open .v7-hamburger,
+body.line-open .v7-hamburger,
+body.lignes-open .v7-hamburger,
+body.favoris-open .v7-hamburger,
+body.autour-open .v7-hamburger,
+body.reglages-open .v7-hamburger,
+body.horaires-open .v7-hamburger,
+body.itineraire-open .v7-hamburger,
+body.sidebar-open .v7-hamburger,
+body.traffic-open .v7-topbar-header,
+body.line-open .v7-topbar-header,
+body.lignes-open .v7-topbar-header,
+body.favoris-open .v7-topbar-header,
+body.horaires-open .v7-topbar-header,
+body.itineraire-open .v7-topbar-header,
+body.sidebar-open .v7-topbar-logo,
+body.traffic-open .v7-topbar-logo,
+body.line-open .v7-topbar-logo,
+body.lignes-open .v7-topbar-logo,
+body.favoris-open .v7-topbar-logo,
+body.horaires-open .v7-topbar-logo,
+body.itineraire-open .v7-topbar-logo,
+body.traffic-open .v7-recenter-map,
+body.line-open .v7-recenter-map,
+body.lignes-open .v7-recenter-map,
+body.favoris-open .v7-recenter-map,
+body.autour-open .v7-recenter-map,
+body.reglages-open .v7-recenter-map,
+body.horaires-open .v7-recenter-map,
+body.itineraire-open .v7-recenter-map,
+body.vehicle-portrait-open .v7-recenter-map,
+body.sidebar-open .v7-recenter-map {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+@media (max-width: 767px) {
+  body.v7-home:not(.traffic-open):not(.line-open):not(.lignes-open):not(.favoris-open):not(.autour-open):not(.reglages-open):not(.horaires-open):not(.itineraire-open):not(.vehicle-portrait-open):not(.sidebar-open) .v7-topbar {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: calc(env(safe-area-inset-top, 0px) + 8px) !important;
+    z-index: 60 !important;
+    pointer-events: none !important;
+  }
+
+  body.v7-home:not(.traffic-open):not(.line-open):not(.lignes-open):not(.favoris-open):not(.autour-open):not(.reglages-open):not(.horaires-open):not(.itineraire-open):not(.vehicle-portrait-open):not(.sidebar-open) .v7-topbar-header {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  body.v7-home:not(.traffic-open):not(.line-open):not(.lignes-open):not(.favoris-open):not(.autour-open):not(.reglages-open):not(.horaires-open):not(.itineraire-open):not(.vehicle-portrait-open):not(.sidebar-open) .v7-hamburger {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+  }
+}
+
+/* Sidebar header premium */
+.v7-sidebar-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  padding: calc(env(safe-area-inset-top, 0px) + 10px) 16px 14px !important;
+  box-sizing: border-box !important;
+}
+
+.v7-sidebar-brand {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+}
+
+.v7-sidebar-brand-text {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+.v7-sidebar-brand-name {
+  display: block !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.v7-sidebar-close {
+  flex: 0 0 auto !important;
+  margin-left: 8px !important;
+}
+
+/* Retour trafic/ligne : icône seule (plus de texte coupé) */
+#trafficBack,
+#lineBack {
+  width: var(--v7-ios-tap) !important;
+  height: var(--v7-ios-tap) !important;
+  min-width: var(--v7-ios-tap) !important;
+  max-width: var(--v7-ios-tap) !important;
+  padding: 0 !important;
+  font-size: 0 !important;
+  overflow: hidden !important;
+  position: relative !important;
+  flex: 0 0 auto !important;
+  border-radius: 14px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #0f172a !important;
+}
+
+#trafficBack::after,
+#lineBack::after {
+  content: "‹" !important;
+  font-size: 28px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  color: currentColor !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  #trafficBack,
+  #lineBack {
+    color: #f8fafc !important;
+  }
+}
+
+/* Labels rouges : annuler flex parasite design-system */
+body.favoris-open #favorisContent > *,
+body.lignes-open #lignesContent > *,
+body.traffic-open #trafficContent > * {
+  display: block !important;
+  min-height: auto !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  align-items: stretch !important;
+  box-sizing: border-box !important;
+}
+
+body.favoris-open #favorisView.open #favorisContent,
+body.lignes-open #lignesView.open #lignesContent,
+body.traffic-open #trafficView.open #trafficContent {
+  padding-left: max(16px, env(safe-area-inset-left, 0px)) !important;
+  padding-right: max(16px, env(safe-area-inset-right, 0px)) !important;
+  overflow-x: visible !important;
+}
+
+.v7-favoris-group-title,
+.v7-lignes-category-title,
+.v7-traffic-group-title {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  padding-left: 2px !important;
+  overflow: visible !important;
+  box-sizing: border-box !important;
+  letter-spacing: 0.06em !important;
+  text-indent: 0 !important;
+  transform: none !important;
+}
+
+body.favoris-open #favorisContent > .v7-favoris-group,
+body.lignes-open #lignesContent > .v7-lignes-category,
+body.traffic-open #trafficContent > .v7-traffic-group {
+  display: block !important;
+  align-items: stretch !important;
+  min-height: auto !important;
+  padding: 16px !important;
+  overflow: visible !important;
+}
+
+/* Itinéraire : champs date/heure contenus */
+.iti-search-card {
+  max-width: 100% !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+.iti-time-grid {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  gap: 10px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.iti-time-grid input {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* =========================================================
+   VISUAL HUMAN LOOP — overrides v7.css line/vehicle headers
+========================================================= */
+
+/* Fiche ligne + portrait véhicule : retour icône seule */
+body.line-open #lineBack,
+body.traffic-open #trafficBack,
+body.vehicle-portrait-open .vehicle-portrait-close {
+  width: var(--v7-ios-tap) !important;
+  min-width: var(--v7-ios-tap) !important;
+  max-width: var(--v7-ios-tap) !important;
+  height: var(--v7-ios-tap) !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 14px !important;
+  color: #0f172a !important;
+}
+
+body.line-open #lineBack::after,
+body.traffic-open #trafficBack::after,
+body.vehicle-portrait-open .vehicle-portrait-close::after {
+  content: "‹" !important;
+  font-size: 28px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  color: currentColor !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  body.line-open #lineBack,
+  body.traffic-open #trafficBack,
+  body.vehicle-portrait-open .vehicle-portrait-close {
+    color: #f8fafc !important;
+  }
+}
+
+@media (max-width: 767px) {
+  body.line-open .v7-detail-head,
+  body.vehicle-portrait-open .vehicle-portrait-topbar {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    grid-template-columns: none !important;
+    min-height: auto !important;
+    padding: calc(env(safe-area-inset-top, 0px) + 10px) max(14px, env(safe-area-inset-right, 0px)) 12px max(14px, env(safe-area-inset-left, 0px)) !important;
+    margin: 0 0 12px !important;
+  }
+
+  body.line-open #lineBack,
+  body.vehicle-portrait-open .vehicle-portrait-close {
+    flex: 0 0 auto !important;
+    justify-self: auto !important;
+  }
+
+  body.line-open #lineTitle,
+  body.vehicle-portrait-open .vehicle-portrait-title {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    justify-self: auto !important;
+    max-width: none !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+}
+
+/* Labels rouges — marge gauche lisible */
+.v7-favoris-group-title,
+.v7-lignes-category-title,
+.v7-traffic-group-title {
+  padding-left: 6px !important;
+  padding-right: 2px !important;
+}
+
+body.favoris-open #favorisContent > .v7-favoris-group,
+body.lignes-open #lignesContent > .v7-lignes-category,
+body.traffic-open #trafficContent > .v7-traffic-group {
+  padding: 18px 16px !important;
+}
+
+/* Itinéraire : départ sur 2 lignes (placeholder non tronqué) */
+@media (max-width: 430px) {
+  .iti-input-wrap {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    grid-template-columns: none !important;
+  }
+
+  .iti-input-wrap input {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .iti-position-btn {
+    width: 100% !important;
+    min-height: 44px !important;
+    justify-content: center !important;
+  }
+
+  .iti-search-card {
+    padding: 16px !important;
+    overflow: visible !important;
+  }
+}
+
+/* Accueil : lisibilité logo sur carte */
+@media (max-width: 767px) {
+  body.v7-home:not(.traffic-open):not(.line-open):not(.lignes-open):not(.favoris-open):not(.autour-open):not(.reglages-open):not(.horaires-open):not(.itineraire-open):not(.vehicle-portrait-open):not(.sidebar-open) .v7-topbar-header {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin: 0 max(8px, env(safe-area-inset-left, 0px)) 0 max(8px, env(safe-area-inset-right, 0px)) !important;
+    padding: 6px 10px !important;
+    border-radius: 18px !important;
+    background: rgba(255, 255, 255, 0.86) !important;
+    backdrop-filter: blur(14px) saturate(1.2) !important;
+    -webkit-backdrop-filter: blur(14px) saturate(1.2) !important;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08) !important;
+  }
+
+  body.v7-home:not(.traffic-open):not(.line-open):not(.lignes-open):not(.favoris-open):not(.autour-open):not(.reglages-open):not(.horaires-open):not(.itineraire-open):not(.vehicle-portrait-open):not(.sidebar-open) .v7-hamburger {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    flex: 0 0 auto !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  body.v7-home:not(.traffic-open):not(.line-open):not(.lignes-open):not(.favoris-open):not(.autour-open):not(.reglages-open):not(.horaires-open):not(.itineraire-open):not(.vehicle-portrait-open):not(.sidebar-open) .v7-topbar-logo {
+    position: relative !important;
+    left: auto !important;
+    transform: none !important;
+    flex: 1 1 auto !important;
+    justify-content: center !important;
+  }
+
+  body.v7-home:not(.traffic-open):not(.line-open):not(.lignes-open):not(.favoris-open):not(.autour-open):not(.reglages-open):not(.horaires-open):not(.itineraire-open):not(.vehicle-portrait-open):not(.sidebar-open) .v7-recenter-map {
+    background: rgba(255, 255, 255, 0.86) !important;
+    backdrop-filter: blur(14px) saturate(1.2) !important;
+    -webkit-backdrop-filter: blur(14px) saturate(1.2) !important;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08) !important;
+  }
+}
+
+/* Portrait véhicule : backdrop strictement lié à .open */
+#vehiclePortraitView:not(.open) {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+}
+
+#vehiclePortraitView:not(.open) .vehicle-portrait-backdrop,
+#vehiclePortraitView:not(.open) .vehicle-portrait-panel {
+  opacity: 0 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  pointer-events: none !important;
 }
