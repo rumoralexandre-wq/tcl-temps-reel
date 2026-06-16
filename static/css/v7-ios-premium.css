@@ -115,6 +115,26 @@ body,
     border-color: var(--v7-theme-border) !important;
     box-shadow: var(--v7-theme-shadow) !important;
   }
+
+  body.v7-home:not(.traffic-open):not(.line-open):not(.lignes-open):not(.favoris-open):not(.autour-open):not(.reglages-open):not(.horaires-open):not(.itineraire-open):not(.vehicle-portrait-open):not(.sidebar-open) .v7-topbar-header {
+    background: rgba(15, 23, 42, 0.88) !important;
+    color: var(--v7-theme-text) !important;
+  }
+
+  body.v7-home:not(.traffic-open):not(.line-open):not(.lignes-open):not(.favoris-open):not(.autour-open):not(.reglages-open):not(.horaires-open):not(.itineraire-open):not(.vehicle-portrait-open):not(.sidebar-open) .v7-hamburger {
+    background: rgba(15, 23, 42, 0.78) !important;
+    color: var(--v7-theme-text) !important;
+  }
+
+  body.v7-home:not(.traffic-open):not(.line-open):not(.lignes-open):not(.favoris-open):not(.autour-open):not(.reglages-open):not(.horaires-open):not(.itineraire-open):not(.vehicle-portrait-open):not(.sidebar-open) .v7-hamburger span {
+    background: var(--v7-theme-text) !important;
+  }
+
+  body.v7-home:not(.traffic-open):not(.line-open):not(.lignes-open):not(.favoris-open):not(.autour-open):not(.reglages-open):not(.horaires-open):not(.itineraire-open):not(.vehicle-portrait-open):not(.sidebar-open) .v7-recenter-map {
+    background: rgba(15, 23, 42, 0.82) !important;
+    color: var(--v7-theme-text) !important;
+    border-color: var(--v7-theme-border) !important;
+  }
 }
 
 /* Titres : éviter troncature agressive sur iPhone */
