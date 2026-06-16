@@ -1160,3 +1160,53 @@ body.vehicle-portrait-open #lineView.open #lineContent {
     box-shadow: 0 8px 24px rgba(0, 0, 0, .40) !important;
   }
 }
+
+/* =========================================================
+   V7 — CORRECTIFS CIBLÉS SAFARI iOS (mobile / mode sombre)
+   CSS uniquement. Aucune logique JS / backend Python touchée.
+   Bloc placé en TOUTE FIN de la dernière feuille de la cascade,
+   avec une spécificité volontairement élevée pour gagner la
+   cascade finale quelles que soient les règles antérieures.
+========================================================= */
+
+/* ISSUE 1 — Horaires : bouton retour (#horairesBack.hor-back-btn)
+   reste blanc en mode sombre alors qu'il doit être sombre + icône blanche.
+   Sélecteur gagnant clair d'origine (v7.css) :
+     body.horaires-open #horairesBack.hor-back-btn  -> spécificité (1,2,1)
+   On ajoute .v7-home sur le body -> spécificité (1,3,1) : gagne toujours,
+   même si une règle claire (1,2,1) est ré-injectée plus loin (cas VPS). */
+@media (prefers-color-scheme: dark) {
+  body.v7-home.horaires-open #horairesBack.hor-back-btn,
+  body.horaires-open #horairesBack.hor-back-btn {
+    background: #111c2e !important;
+    border-color: rgba(148, 163, 184, .22) !important;
+    color: #f8fafc !important;
+  }
+  /* L'icône SVG (stroke=currentColor) suit la couleur du bouton -> blanche. */
+  body.horaires-open #horairesBack.hor-back-btn svg,
+  body.horaires-open #horairesBack.hor-back-btn svg * {
+    stroke: #f8fafc !important;
+  }
+}
+
+/* ISSUE 2 — Bouton GPS (#recenterMap.v7-recenter-map) « disparu » de la
+   carte d'accueil sur mobile, alors que display/visibility/opacity sont OK.
+   CAUSE RÉELLE (vérifiée, ce n'est PAS un display:none) :
+   #recenterMap est un enfant de .v7-map-shell qui est en position:fixed,
+   donc .v7-map-shell crée un CONTEXTE D'EMPILEMENT. Le z-index:70 du bouton
+   est alors confiné À CE contexte. Au niveau racine, .v7-topbar (frère en
+   position:fixed, z-index:60) passe AU-DESSUS de tout .v7-map-shell, et sa
+   barre pleine largeur (.v7-topbar-header) recouvre le bouton placé en
+   haut à droite. (elementFromPoint au centre du bouton -> .v7-topbar-header.)
+   CORRECTIF MINIMAL : sur mobile et uniquement sur l'accueil (aucun panneau
+   ouvert), on descend le bouton SOUS la barre du haut, donc plus aucun
+   recouvrement. Le masquage légitime quand un panneau est ouvert
+   (display:none, lignes ~585) reste intact grâce aux :not(). */
+@media (max-width: 767px) {
+  body.v7-home:not(.line-open):not(.traffic-open):not(.lignes-open):not(.favoris-open):not(.autour-open):not(.reglages-open):not(.horaires-open):not(.itineraire-open):not(.vehicle-portrait-open):not(.sidebar-open) #recenterMap.v7-recenter-map {
+    top: calc(env(safe-area-inset-top, 0px) + 78px) !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: max(14px, env(safe-area-inset-right, 0px)) !important;
+  }
+}
