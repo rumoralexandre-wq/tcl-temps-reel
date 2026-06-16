@@ -1030,10 +1030,31 @@ body.vehicle-portrait-open #lineView.open #lineContent {
   pointer-events: none !important;
 }
 
-/* ══ ITINÉRAIRE — cycle de vie overlay (iOS Safari) ══ */
+/* ══ OVERLAY LIFECYCLE GUARDS (iOS Safari) ══ */
 
+#v7SidebarOverlay {
+  z-index: var(--v7-ios-overlay-z) !important;
+}
+
+#v7SheetOverlay {
+  z-index: calc(var(--v7-ios-overlay-z) + 1) !important;
+}
+
+body:not(.sidebar-open) #v7SidebarOverlay,
+body:not(.lignes-open):not(.favoris-open):not(.autour-open):not(.reglages-open) #v7SheetOverlay {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Itinéraire: le modal ne doit vivre que pendant l'état modal. */
 #itiRoutePopup:not(.open),
-.iti-route-popup:not(.open) {
+.iti-route-popup:not(.open),
+body:not(.itineraire-open):not(.iti-result-modal-open) #itiRoutePopup,
+body:not(.itineraire-open):not(.iti-result-modal-open) .iti-route-popup {
   display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
@@ -1041,6 +1062,10 @@ body.vehicle-portrait-open #lineView.open #lineContent {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   background: transparent !important;
+}
+
+body.iti-result-modal-open #itiRoutePopup.open {
+  z-index: var(--v7-ios-modal-z) !important;
 }
 
 body:not(.itineraire-open):not(.iti-result-modal-open) #itineraireView {
@@ -1075,7 +1100,15 @@ body:not(.iti-result-modal-open) #itiRoutePopup.open {
   -webkit-backdrop-filter: none !important;
 }
 
-/* ══ HORAIRES — overlay lifecycle (iOS Safari) ══ */
+/* Horaires: empêcher tout blur/backdrop résiduel hors vue active. */
+body.horaires-open #horairesOverlay {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
 
 body:not(.horaires-open) .v7-horaires-overlay,
 body:not(.horaires-open) #horairesOverlay {
