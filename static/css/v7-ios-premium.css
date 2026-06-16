@@ -758,7 +758,8 @@ body.traffic-open #trafficContent > .v7-traffic-group {
 .iti-time-grid {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-  gap: 10px !important;
+  column-gap: 18px !important;
+  row-gap: 14px !important;
   width: 100% !important;
   max-width: 100% !important;
 }
@@ -936,6 +937,11 @@ body.favoris-open #favorisView.open #favorisContent > .v7-favoris-group {
   .iti-search-card {
     padding: 16px !important;
     overflow: visible !important;
+  }
+
+  .iti-time-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
   }
 }
 
