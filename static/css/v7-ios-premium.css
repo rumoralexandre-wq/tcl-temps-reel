@@ -2579,3 +2579,49 @@ body.itineraire-open .v7-itineraire-view .iti-time-grid input::-webkit-calendar-
   }
 }
 
+
+/* FIX FINAL 20260617 — centrage vertical réel Date/Heure Safari iPhone */
+body.itineraire-open .v7-itineraire-view .iti-time-grid input,
+body.itineraire-open .iti-time-grid input {
+  height: 56px !important;
+  min-height: 56px !important;
+  max-height: 56px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+  line-height: 56px !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+  display: block !important;
+  box-sizing: border-box !important;
+}
+
+body.itineraire-open .v7-itineraire-view .iti-time-grid input::-webkit-date-and-time-value,
+body.itineraire-open .iti-time-grid input::-webkit-date-and-time-value {
+  height: 56px !important;
+  min-height: 56px !important;
+  line-height: 56px !important;
+  display: block !important;
+  text-align: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+body.itineraire-open .v7-itineraire-view .iti-time-grid input::-webkit-datetime-edit,
+body.itineraire-open .iti-time-grid input::-webkit-datetime-edit {
+  height: 56px !important;
+  line-height: 56px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+body.itineraire-open .v7-itineraire-view .iti-time-grid input::-webkit-datetime-edit-fields-wrapper,
+body.itineraire-open .iti-time-grid input::-webkit-datetime-edit-fields-wrapper {
+  height: 56px !important;
+  line-height: 56px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  vertical-align: middle !important;
+}
