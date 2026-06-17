@@ -5803,3 +5803,51 @@ ${sections.map(offlineSectionHtml).join("")}
 
   harmonizeLineBadges();
 })();
+
+
+/* HOTFIX 20260617 — Favoris : couleurs sobres unifiées + nettoyage visuel */
+(function(){
+  if(window.__v7FavorisHarmonyFinal) return;
+  window.__v7FavorisHarmonyFinal = true;
+
+  function kind(line){
+    const v = String(line || "").trim().toUpperCase();
+    if(/^[ABCD]$/.test(v)) return "metro";
+    if(/^T/.test(v)) return "tram";
+    if(/^F/.test(v)) return "funi";
+    if(/^C\d+/.test(v)) return "forte";
+    if(/^JD/.test(v)) return "jd";
+    return "bus";
+  }
+
+  function apply(){
+    document.querySelectorAll(".v7-fav-row[data-type='ligne']").forEach(row => {
+      const line = row.dataset.line || "";
+      const badge = row.querySelector(".v7-fav-badge");
+      if(!badge) return;
+
+      badge.classList.remove("tcl-kind-metro","tcl-kind-tram","tcl-kind-funi","tcl-kind-forte","tcl-kind-bus","tcl-kind-jd");
+      badge.classList.add("tcl-kind-" + kind(line));
+
+      badge.style.removeProperty("background");
+      badge.style.removeProperty("color");
+      badge.style.removeProperty("font-size");
+      badge.textContent = line;
+    });
+
+    document.querySelectorAll(".v7-fav-row[data-type='vehicle']").forEach(row => {
+      const badge = row.querySelector(".v7-fav-badge");
+      if(!badge) return;
+      badge.style.removeProperty("background");
+      badge.style.removeProperty("color");
+      badge.textContent = "BUS";
+      badge.classList.add("tcl-kind-bus");
+    });
+  }
+
+  new MutationObserver(apply).observe(document.documentElement, {childList:true, subtree:true});
+  window.addEventListener("load", apply);
+  window.addEventListener("pageshow", apply);
+  setInterval(apply, 1200);
+  apply();
+})();
