@@ -1344,3 +1344,60 @@ body:not(.horaires-open) #horairesView.open {
     fill: none !important;
   }
 }
+
+/* HOTFIX FINAL 20260617 - GPS + Retour Horaires Safari iOS */
+@media (prefers-color-scheme: dark) {
+
+  body.horaires-open #horairesBack.hor-back-btn,
+  body.horaires-open #horairesBack.hor-back-btn * {
+    background: rgba(15,23,42,.92) !important;
+    color: #f8fafc !important;
+    fill: #f8fafc !important;
+    stroke: #f8fafc !important;
+  }
+
+  body.v7-home #recenterMap.v7-recenter-map {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    background: rgba(15,23,42,.92) !important;
+    border: 1px solid rgba(148,163,184,.30) !important;
+    color: #f8fafc !important;
+  }
+
+  body.v7-home #recenterMap.v7-recenter-map svg,
+  body.v7-home #recenterMap.v7-recenter-map * {
+    color: #f8fafc !important;
+    stroke: #f8fafc !important;
+    fill: none !important;
+    opacity: 1 !important;
+  }
+}
+
+/* =========================================================
+   V7 — CORRECTIFS CIBLÉS SAFARI iOS (mobile / mode sombre)
+   CSS uniquement. Aucune logique JS / backend Python touchée.
+========================================================= */
+@media (prefers-color-scheme: dark) {
+  body.v7-home.horaires-open #horairesBack.hor-back-btn,
+  body.horaires-open #horairesBack.hor-back-btn {
+    background: #111c2e !important;
+    border-color: rgba(148, 163, 184, .22) !important;
+    color: #f8fafc !important;
+  }
+  body.horaires-open #horairesBack.hor-back-btn svg,
+  body.horaires-open #horairesBack.hor-back-btn svg * {
+    stroke: #f8fafc !important;
+  }
+}
+@media (max-width: 767px) {
+  body.v7-home:not(.line-open):not(.traffic-open):not(.lignes-open):not(.favoris-open):not(.autour-open):not(.reglages-open):not(.horaires-open):not(.itineraire-open):not(.vehicle-portrait-open):not(.sidebar-open) #recenterMap.v7-recenter-map {
+    top: calc(env(safe-area-inset-top, 0px) + 78px) !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: max(14px, env(safe-area-inset-right, 0px)) !important;
+  }
+}
