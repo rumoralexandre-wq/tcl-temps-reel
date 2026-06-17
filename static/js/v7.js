@@ -5350,6 +5350,7 @@ function itiSuggestionLabel(it){
   }
 
 
+
   async function downloadOfficialJourney(journey, result){
     const btn = qs("[data-iti-download]");
     const original = btn?.textContent || "Télécharger l’itinéraire";
@@ -5359,33 +5360,37 @@ function itiSuggestionLabel(it){
     }
 
     try{
-      const response = await fetch("/api/tcl/journey_pdf", {
-        method:"POST",
-        cache:"no-store",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({journey, payload:result?.payload || {}})
-      });
-      if(!response.ok) throw new Error("PDF indisponible");
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
+      const iframeName = "itiPdfDownloadFrame";
+      let iframe = document.querySelector(`iframe[name="${iframeName}"]`);
+      if(!iframe){
+        iframe = document.createElement("iframe");
+        iframe.name = iframeName;
+        iframe.style.position = "fixed";
+        iframe.style.left = "-9999px";
+        iframe.style.top = "-9999px";
+        iframe.style.width = "1px";
+        iframe.style.height = "1px";
+        iframe.style.opacity = "0";
+        iframe.setAttribute("aria-hidden", "true");
+        document.body.appendChild(iframe);
+      }
 
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `itineraire-tcl-${Date.now()}.pdf`;
-      a.rel = "noopener";
-      document.body.appendChild(a);
-      a.click();
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = "/api/tcl/journey_pdf";
+      form.target = iframeName;
+      form.style.display = "none";
 
-      setTimeout(() => {
-        if(/iPad|iPhone|iPod|Safari/i.test(navigator.userAgent || "")){
-          window.open(url, "_blank", "noopener");
-        }
-      }, 350);
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = "payload_json";
+      input.value = JSON.stringify({journey, payload:result?.payload || {}});
 
-      setTimeout(() => {
-        URL.revokeObjectURL(url);
-        a.remove();
-      }, 8000);
+      form.appendChild(input);
+      document.body.appendChild(form);
+      form.submit();
+
+      setTimeout(() => form.remove(), 2000);
     }catch(e){
       console.error("itineraire pdf failed", e);
       alert("Le PDF n’a pas pu être généré pour le moment.");
@@ -5395,7 +5400,7 @@ function itiSuggestionLabel(it){
           btn.disabled = false;
           btn.textContent = original;
         }
-      }, 1200);
+      }, 1800);
     }
   }
 
