@@ -4782,9 +4782,9 @@ function itiSuggestionLabel(it){
       isArrivalTime:mode === "arrive",
       transportModes:["metro","funicular","tramway","boat","bus","tod","train","car-region"],
       walk:"normal",
-      bike:{type:["bike","bss"], speed:"normal", isElectric:false},
+      bike:null,
       pmr:false,
-      car:true,
+      car:false,
       carPooling:false,
       dataFreshness:false,
       algorithm:"FASTEST"
@@ -4798,7 +4798,9 @@ function itiSuggestionLabel(it){
     try{
       const official = await postJson("/api/tcl/journeys", payload);
       const rawJourneys = official?.data?.journeys || official?.journeys || [];
-      const journeys = rankOfficialJourneys(filterCurrentJourneys(rawJourneys));
+      const currentJourneys = filterCurrentJourneys(rawJourneys);
+      const tclOnlyJourneys = filterTclOnlyJourneys(currentJourneys);
+      const journeys = rankOfficialJourneys(tclOnlyJourneys);
       if(official.ok && journeys.length){
         const result = {
           ok:true,
@@ -4816,7 +4818,11 @@ function itiSuggestionLabel(it){
       }
       if(official.ok && Array.isArray(rawJourneys)){
         state.result = null;
-        out.innerHTML = `<div class="iti-error">Aucun itinéraire actuel disponible. Les trajets déjà terminés sont masqués.</div>`;
+        const currentJourneys = filterCurrentJourneys(rawJourneys);
+        const message = currentJourneys.length
+          ? "Aucun itinéraire TCL pertinent disponible sans voiture ni vélo."
+          : "Aucun itinéraire actuel disponible. Les trajets déjà terminés sont masqués.";
+        out.innerHTML = `<div class="iti-error">${esc(message)}</div>`;
         return;
       }
       console.warn("official itinerary failed", official);
@@ -4926,6 +4932,26 @@ function itiSuggestionLabel(it){
     return (journeys || []).filter(journey => {
       const arrival = tclDate(journey?.arrival);
       return !arrival || arrival.getTime() > now;
+    });
+  }
+
+  function tclIsTransitType(type){
+    return type === "public-transport" || type === "on-demand-transport";
+  }
+
+  function tclJourneyHasForbiddenMode(journey){
+    return (journey?.sections || []).some(section => {
+      const type = section?.type || "";
+      return type === "car" || type === "bike";
+    });
+  }
+
+  function filterTclOnlyJourneys(journeys){
+    return (journeys || []).filter(journey => {
+      const sections = Array.isArray(journey?.sections) ? journey.sections : [];
+      if(!sections.some(section => tclIsTransitType(section?.type))) return false;
+      if(tclJourneyHasForbiddenMode(journey)) return false;
+      return true;
     });
   }
 
@@ -5114,29 +5140,18 @@ function itiSuggestionLabel(it){
   }
 
   function prepareOfficialJourneyPresentation(journeys){
-    const tcl = [];
-    const nonTcl = [];
-    for(const journey of (journeys || [])){
-      if(tclJourneyStats(journey).isTclExploitable) tcl.push(journey);
-      else nonTcl.push(journey);
-    }
-
-    const rankedTcl = [...tcl].sort(tclCompareJourneyScore);
-    const rankedNonTcl = [...nonTcl].sort(tclCompareJourneyScore);
-    const tclRelevant = tclIsTclJourneyRelevant(rankedTcl[0], rankedNonTcl[0]);
-
-    const recommended = tclRelevant ? (rankedTcl[0] || null) : null;
-    const tclOptions = tclRelevant ? rankedTcl.slice(1, 5) : rankedTcl.slice(0, 5);
-    const alternatives = rankedNonTcl.slice(0, 5);
-    const centerJourney = recommended || rankedTcl[0] || rankedNonTcl[0] || null;
+    const rankedTcl = filterTclOnlyJourneys(journeys).sort(tclCompareJourneyScore);
+    const recommended = rankedTcl[0] || null;
+    const tclOptions = rankedTcl.slice(1, 5);
+    const centerJourney = recommended;
 
     return {
-      tclRelevant,
+      tclRelevant: Boolean(recommended),
       recommended,
       tclOptions,
-      alternatives,
+      alternatives: [],
       centerJourney,
-      allJourneys: [...rankedTcl, ...rankedNonTcl]
+      allJourneys: rankedTcl
     };
   }
 
@@ -5200,15 +5215,6 @@ function itiSuggestionLabel(it){
       journeyByKey[key] = journey;
       const kicker = recommended ? ("Option " + optionNo++) : ("Trajet TCL " + (cards.length));
       cards.push(tclJourneyCardHtml(journey, cards.length, { kicker, journeyKey: key }));
-    }
-
-    if(alternatives.length){
-      cards.push(`<p class="iti-section-note">Alternatives hors TCL</p>`);
-      alternatives.forEach((journey, i) => {
-        const key = "alt-" + i;
-        journeyByKey[key] = journey;
-        cards.push(tclJourneyCardHtml(journey, cards.length, { kicker: "Alternative " + (i + 1), journeyKey: key }));
-      });
     }
 
     const centerTime = tclHm(centerJourney.departure);
@@ -5301,43 +5307,42 @@ function itiSuggestionLabel(it){
     `;
   }
 
-  function downloadOfficialJourney(journey, result){
-    const sections = journey.sections || [];
-    const from = sections[0]?.from?.name || result?.payload?.fromName || "Départ";
-    const to = sections[sections.length - 1]?.to?.name || result?.payload?.toName || "Arrivée";
-    const html = `<!doctype html>
-<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Itinéraire TCL</title>
-<style>
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:#f4f7fb;color:#0f172a;padding:24px}
-.card,.step{background:#fff;border:1px solid #dbe4ef;border-radius:22px;padding:18px;margin:0 0 14px;box-shadow:0 12px 30px rgba(15,23,42,.08)}
-h1{font-size:30px;margin:0 0 8px}.meta{color:#475569;font-weight:700}.step h2{display:flex;justify-content:space-between;gap:16px;font-size:18px;margin:0 0 8px}.step p{margin:6px 0;color:#334155;font-weight:650}
-</style></head><body>
-<main>
-<section class="card">
-<h1>${offlineHtmlEscape(tclMainTitle(journey))}</h1>
-<p class="meta">Départ : ${offlineHtmlEscape(from)}</p>
-<p class="meta">Destination : ${offlineHtmlEscape(to)}</p>
-<p class="meta">Date et heure : ${offlineHtmlEscape(tclDate(journey.departure)?.toLocaleString("fr-FR", {dateStyle:"full", timeStyle:"short"}) || tclHm(journey.departure))}</p>
-<p class="meta">Durée totale : ${offlineHtmlEscape(tclJourneyMinutes(journey))} min</p>
-<p class="meta">Départ ${offlineHtmlEscape(tclHm(journey.departure))} · Arrivée ${offlineHtmlEscape(tclHm(journey.arrival))}</p>
-<p class="meta">Correspondances : ${offlineHtmlEscape(tclTransferCount(journey))}</p>
-<p class="meta">Calculé avec le moteur TCL</p>
-</section>
-${sections.map(offlineSectionHtml).join("")}
-</main></body></html>`;
+  async function downloadOfficialJourney(journey, result){
+    const btn = qs("[data-iti-download]");
+    const original = btn?.textContent || "Télécharger l’itinéraire";
+    if(btn){
+      btn.disabled = true;
+      btn.textContent = "Préparation du PDF…";
+    }
 
-    const blob = new Blob([html], {type:"text/html;charset=utf-8"});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `itineraire-tcl-${Date.now()}.html`;
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => {
-      URL.revokeObjectURL(url);
-      a.remove();
-    }, 1000);
+    try{
+      const response = await fetch("/api/tcl/journey_pdf", {
+        method:"POST",
+        cache:"no-store",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({journey, payload:result?.payload || {}})
+      });
+      if(!response.ok) throw new Error("PDF indisponible");
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `itineraire-tcl-${Date.now()}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+        a.remove();
+      }, 1200);
+    }catch(e){
+      console.error("itineraire pdf failed", e);
+      alert("Le PDF n’a pas pu être généré pour le moment.");
+    }finally{
+      if(btn){
+        btn.disabled = false;
+        btn.textContent = original;
+      }
+    }
   }
 
   function stepHtml(s){

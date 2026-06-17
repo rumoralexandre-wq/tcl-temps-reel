@@ -664,4 +664,166 @@ def api_tcl_journeys():
         })
     except Exception as e:
         return _tcl_jsonify({"ok": False, "error": str(e)}), 502
+
+
+def _tcl_pdf_text(value):
+    return str(value or "").replace("\r", " ").replace("\n", " ").strip()
+
+
+def _tcl_pdf_hm(value):
+    dt = _tcl_parse_dt(value)
+    return dt.strftime("%H:%M") if dt else "--:--"
+
+
+def _tcl_pdf_minutes(start, end):
+    a = _tcl_parse_dt(start)
+    b = _tcl_parse_dt(end)
+    if not a or not b:
+        return 0
+    return max(0, round((b - a).total_seconds() / 60))
+
+
+def _tcl_pdf_wrap(text, limit=72):
+    words = _tcl_pdf_text(text).split()
+    lines, cur = [], ""
+    for word in words:
+        nxt = (cur + " " + word).strip()
+        if len(nxt) > limit and cur:
+            lines.append(cur)
+            cur = word
+        else:
+            cur = nxt
+    if cur:
+        lines.append(cur)
+    return lines or [""]
+
+
+def _tcl_pdf_escape(text):
+    raw = _tcl_pdf_text(text).encode("cp1252", "replace").decode("cp1252")
+    return raw.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
+
+
+def _tcl_build_journey_pdf(journey, payload=None):
+    payload = payload or {}
+    sections = journey.get("sections") if isinstance(journey, dict) else []
+    if not isinstance(sections, list):
+        sections = []
+
+    transit = [s for s in sections if (s or {}).get("type") in ("public-transport", "on-demand-transport")]
+    title = " + ".join(dict.fromkeys(str((s.get("line") or {}).get("code") or "TCL") for s in transit)) or "Itinéraire TCL"
+    start_name = ((sections[0] or {}).get("from") or {}).get("name") if sections else payload.get("fromName")
+    end_name = ((sections[-1] or {}).get("to") or {}).get("name") if sections else payload.get("toName")
+    duration = _tcl_pdf_minutes(journey.get("departure"), journey.get("arrival"))
+    transfers = max(0, len(transit) - 1)
+
+    logical_lines = [
+        ("title", "Itinéraire TCL"),
+        ("h1", title),
+        ("body", f"Départ : {_tcl_pdf_hm(journey.get('departure'))} - {_tcl_pdf_text(start_name or 'Départ')}"),
+        ("body", f"Arrivée : {_tcl_pdf_hm(journey.get('arrival'))} - {_tcl_pdf_text(end_name or 'Destination')}"),
+        ("body", f"Durée totale : {duration} min"),
+        ("body", f"Correspondances : {transfers}"),
+        ("body", "Calculé avec le moteur TCL"),
+        ("space", ""),
+    ]
+
+    for index, section in enumerate(sections, 1):
+        section = section or {}
+        stype = section.get("type") or ""
+        is_tcl = stype in ("public-transport", "on-demand-transport")
+        line = section.get("line") or {}
+        if is_tcl:
+            heading = f"{index}. Ligne {line.get('code') or 'TCL'} - {line.get('mode') or 'transport'}"
+            detail = f"Direction {section.get('headsign') or (section.get('direction') or {}).get('name') or 'non précisée'}"
+        else:
+            heading = f"{index}. Marche de liaison"
+            detail = _tcl_pdf_text(section.get("summary") or "Liaison à pied")
+        logical_lines.append(("h2", heading))
+        logical_lines.append(("body", f"{_tcl_pdf_hm(section.get('departure'))} -> {_tcl_pdf_hm(section.get('arrival'))} · {_tcl_pdf_minutes(section.get('departure'), section.get('arrival'))} min"))
+        logical_lines.append(("body", f"{((section.get('from') or {}).get('name') or 'Départ')} -> {((section.get('to') or {}).get('name') or 'Arrivée')}"))
+        logical_lines.append(("body", detail))
+        if section.get("length"):
+            logical_lines.append(("body", f"Distance : {round(float(section.get('length') or 0))} m"))
+        if is_tcl:
+            stops = section.get("intermediateStops") if isinstance(section.get("intermediateStops"), list) else []
+            logical_lines.append(("body", f"Arrêts intermédiaires : {len(stops)}"))
+        for direction in (section.get("directions") or [])[:5]:
+            instruction = direction.get("instruction") or direction.get("name") if isinstance(direction, dict) else ""
+            if instruction:
+                logical_lines.append(("body", instruction))
+        logical_lines.append(("space", ""))
+
+    pages, page, y = [], [], 780
+    for style, text in logical_lines:
+        if style == "space":
+            y -= 12
+            continue
+        font_size = 22 if style == "title" else 17 if style == "h1" else 13 if style == "h2" else 10
+        leading = font_size + 5
+        limit = 54 if style in ("title", "h1") else 82
+        for line in _tcl_pdf_wrap(text, limit):
+            if y < 58:
+                pages.append(page)
+                page, y = [], 780
+            page.append((style, font_size, 50, y, line))
+            y -= leading
+    if page:
+        pages.append(page)
+
+    objects = []
+    page_ids = []
+    for lines in pages:
+        ops = ["BT"]
+        for style, size, x, yy, text in lines:
+            font = "/F2" if style in ("title", "h1", "h2") else "/F1"
+            ops.append(f"{font} {size} Tf 1 0 0 1 {x} {yy} Tm ({_tcl_pdf_escape(text)}) Tj")
+        ops.append("ET")
+        stream = "\n".join(ops).encode("cp1252", "replace")
+        content_id = len(objects) + 1
+        objects.append(b"<< /Length " + str(len(stream)).encode() + b" >>\nstream\n" + stream + b"\nendstream")
+        page_id = len(objects) + 1
+        page_ids.append(page_id)
+        objects.append(f"<< /Type /Page /Parent 0 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 0 0 R /F2 0 0 R >> >> /Contents {content_id} 0 R >>".encode())
+
+    pages_id = len(objects) + 1
+    font1_id = pages_id + 1
+    font2_id = pages_id + 2
+    catalog_id = pages_id + 3
+    patched = []
+    kids = " ".join(f"{pid} 0 R" for pid in page_ids)
+    for obj in objects:
+        obj = obj.replace(b"/Parent 0 0 R", f"/Parent {pages_id} 0 R".encode())
+        obj = obj.replace(b"/F1 0 0 R", f"/F1 {font1_id} 0 R".encode())
+        obj = obj.replace(b"/F2 0 0 R", f"/F2 {font2_id} 0 R".encode())
+        patched.append(obj)
+    patched.append(f"<< /Type /Pages /Kids [{kids}] /Count {len(page_ids)} >>".encode())
+    patched.append(b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>")
+    patched.append(b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>")
+    patched.append(f"<< /Type /Catalog /Pages {catalog_id} 0 R >>".encode())
+
+    pdf = bytearray(b"%PDF-1.4\n%\xe2\xe3\xcf\xd3\n")
+    offsets = [0]
+    for i, obj in enumerate(patched, 1):
+        offsets.append(len(pdf))
+        pdf += f"{i} 0 obj\n".encode() + obj + b"\nendobj\n"
+    xref = len(pdf)
+    pdf += f"xref\n0 {len(patched)+1}\n0000000000 65535 f \n".encode()
+    for off in offsets[1:]:
+        pdf += f"{off:010d} 00000 n \n".encode()
+    pdf += f"trailer << /Size {len(patched)+1} /Root {catalog_id} 0 R >>\nstartxref\n{xref}\n%%EOF\n".encode()
+    return bytes(pdf)
+
+
+@app.post("/api/tcl/journey_pdf")
+def api_tcl_journey_pdf():
+    payload = _tcl_request.get_json(silent=True) or {}
+    journey = payload.get("journey") if isinstance(payload, dict) else None
+    if not isinstance(journey, dict):
+        return _tcl_jsonify({"ok": False, "error": "Trajet manquant"}), 400
+    pdf = _tcl_build_journey_pdf(journey, payload.get("payload") or {})
+    return Response(pdf, mimetype="application/pdf", headers={
+        "Content-Disposition": "attachment; filename=itineraire-tcl.pdf",
+        "Cache-Control": "no-store",
+    })
+
 # --- /TCL official JSON itinerary engine ---
