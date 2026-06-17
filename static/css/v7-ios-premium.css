@@ -1462,3 +1462,43 @@ body:not(.horaires-open) #horairesView.open {
     stroke: #f8fafc !important;
   }
 }
+
+/* HOTFIX 20260617 — GPS intégré topbar + titre centré */
+@media (max-width: 767px) {
+  body.v7-home:not(.line-open):not(.traffic-open):not(.lignes-open):not(.favoris-open):not(.autour-open):not(.reglages-open):not(.horaires-open):not(.itineraire-open):not(.vehicle-portrait-open):not(.sidebar-open) .v7-topbar-header {
+    display: grid !important;
+    grid-template-columns: 56px 1fr 56px !important;
+    align-items: center !important;
+    gap: 0 !important;
+  }
+
+  body.v7-home:not(.line-open):not(.traffic-open):not(.lignes-open):not(.favoris-open):not(.autour-open):not(.reglages-open):not(.horaires-open):not(.itineraire-open):not(.vehicle-portrait-open):not(.sidebar-open) .v7-topbar-logo {
+    grid-column: 2 !important;
+    justify-self: center !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+
+  body.v7-home:not(.line-open):not(.traffic-open):not(.lignes-open):not(.favoris-open):not(.autour-open):not(.reglages-open):not(.horaires-open):not(.itineraire-open):not(.vehicle-portrait-open):not(.sidebar-open) #v7Hamburger {
+    grid-column: 1 !important;
+    justify-self: start !important;
+  }
+
+  body.v7-home:not(.line-open):not(.traffic-open):not(.lignes-open):not(.favoris-open):not(.autour-open):not(.reglages-open):not(.horaires-open):not(.itineraire-open):not(.vehicle-portrait-open):not(.sidebar-open) button#recenterMap.v7-recenter-map {
+    grid-column: 3 !important;
+    justify-self: end !important;
+    position: static !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 16px !important;
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    z-index: auto !important;
+  }
+}
