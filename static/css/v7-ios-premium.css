@@ -1851,3 +1851,34 @@ body:not(.horaires-open) #horairesView.open {
     transform: rotate(0deg) translateY(0) !important;
   }
 }
+
+/* HOTFIX FINAL 20260617 — chevron accordéon trafic centré */
+@media (max-width: 1024px) {
+  body.traffic-open .v7-traffic-group-title::after {
+    content: "›" !important;
+    display: grid !important;
+    place-items: center !important;
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    max-width: 34px !important;
+    flex: 0 0 34px !important;
+    margin-left: auto !important;
+    padding: 0 !important;
+    border-radius: 999px !important;
+    line-height: 34px !important;
+    font-size: 28px !important;
+    font-weight: 700 !important;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif !important;
+    text-align: center !important;
+    transform: none !important;
+    translate: 0 -1px !important;
+  }
+
+  body.traffic-open .v7-traffic-group.is-open .v7-traffic-group-title::after {
+    content: "⌄" !important;
+    transform: none !important;
+    translate: 0 -2px !important;
+    font-size: 24px !important;
+  }
+}
