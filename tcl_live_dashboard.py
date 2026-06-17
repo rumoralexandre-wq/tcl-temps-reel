@@ -814,16 +814,28 @@ def _tcl_build_journey_pdf(journey, payload=None):
     return bytes(pdf)
 
 
-@app.post("/api/tcl/journey_pdf")
+@app.route("/api/tcl/journey_pdf", methods=["POST"])
 def api_tcl_journey_pdf():
-    payload = _tcl_request.get_json(silent=True) or {}
-    journey = payload.get("journey") if isinstance(payload, dict) else None
-    if not isinstance(journey, dict):
-        return _tcl_jsonify({"ok": False, "error": "Trajet manquant"}), 400
+    import json
+    payload = {}
+    if request.is_json:
+        payload = request.get_json(silent=True) or {}
+    else:
+        raw = request.form.get("payload_json") or request.values.get("payload_json") or ""
+        if raw:
+            payload = json.loads(raw)
+
+    journey = payload.get("journey") or {}
+    if not isinstance(journey, dict) or not journey.get("sections"):
+        return jsonify({"ok": False, "error": "journey invalide"}), 400
+
     pdf = _tcl_build_journey_pdf(journey, payload.get("payload") or {})
     return Response(pdf, mimetype="application/pdf", headers={
         "Content-Disposition": "attachment; filename=itineraire-tcl.pdf",
-        "Cache-Control": "no-store",
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        "Pragma": "no-cache",
+        "Expires": "0",
+        "X-Content-Type-Options": "nosniff",
     })
 
 # --- /TCL official JSON itinerary engine ---
