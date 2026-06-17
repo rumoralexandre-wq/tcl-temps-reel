@@ -2646,7 +2646,7 @@ document.addEventListener("click", function(e){
       // Fetch couleurs depuis l'API si possible, sinon fallback
       lineFavs.forEach(line => {
         html += `<button class="v7-fav-row" type="button" data-type="ligne" data-line="${esc(line)}">
-          <span class="v7-fav-badge" style="background:rgba(56,189,248,.18);color:#38bdf8;border-radius:10px;min-width:44px;height:34px">${esc(line)}</span>
+          <span class="v7-fav-badge" data-line="${esc(line)}">${esc(line)}</span>
           <span class="v7-fav-info">
             <strong>Ligne ${esc(line)}</strong>
             <small>Suivi temps réel</small>
@@ -2675,7 +2675,7 @@ document.addEventListener("click", function(e){
         const line = parts[0]||"?";
         const veh = parts[1]||"?";
         html += `<button class="v7-fav-row" type="button" data-type="vehicle" data-line="${esc(line)}" data-vehicle="${esc(veh)}">
-          <span class="v7-fav-badge" style="background:rgba(251,146,60,.15);color:#fb923c;border-radius:10px;min-width:44px;height:34px;font-size:18px">🚌</span>
+          <span class="v7-fav-badge tcl-line-bus">BUS</span>
           <span class="v7-fav-info">
             <strong>Bus ${esc(veh)}</strong>
             <small>Ligne ${esc(line)}</small>
@@ -5802,4 +5802,29 @@ ${sections.map(offlineSectionHtml).join("")}
   });
 
   harmonizeLineBadges();
+})();
+
+
+/* HOTFIX 20260617 — Favoris : appliquer les couleurs sobres TCL */
+(function(){
+  function favLineClass(line){
+    const v = String(line || "").trim().toUpperCase();
+    if(/^[ABCD]$/.test(v)) return "tcl-line-metro";
+    if(/^T/.test(v)) return "tcl-line-tram";
+    if(/^F/.test(v)) return "tcl-line-funi";
+    if(/^C20E$/.test(v)) return "tcl-line-express";
+    if(/^C\d+/.test(v)) return "tcl-line-forte";
+    if(/^JD/.test(v)) return "tcl-line-jd";
+    return "tcl-line-bus";
+  }
+  function applyFavColors(){
+    document.querySelectorAll("body.favoris-open .v7-fav-badge[data-line]").forEach(b=>{
+      b.classList.remove("tcl-line-metro","tcl-line-tram","tcl-line-funi","tcl-line-express","tcl-line-forte","tcl-line-jd","tcl-line-bus");
+      b.classList.add(favLineClass(b.dataset.line));
+    });
+  }
+  new MutationObserver(applyFavColors).observe(document.documentElement,{childList:true,subtree:true});
+  window.addEventListener("load",applyFavColors);
+  window.addEventListener("pageshow",applyFavColors);
+  setInterval(applyFavColors,1000);
 })();
