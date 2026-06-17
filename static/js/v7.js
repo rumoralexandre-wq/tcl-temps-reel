@@ -5476,7 +5476,7 @@ ${sections.map(offlineSectionHtml).join("")}
   const obs = new MutationObserver(() => enhanceTrafficAccordion());
   obs.observe(document.documentElement, {childList:true, subtree:true});
   window.addEventListener("load", enhanceTrafficAccordion);
-  setInterval(enhanceTrafficAccordion, 800);
+  /* désactivé: évitait le clignotement visuel accordéon trafic */
 })();
 
 /* HOTFIX 20260617 — Info trafic : garder les catégories ouvertes */
@@ -5535,5 +5535,71 @@ ${sections.map(offlineSectionHtml).join("")}
   const obs = new MutationObserver(() => setTimeout(applyOpenState, 60));
   obs.observe(document.documentElement, {childList:true, subtree:true});
 
-  setInterval(applyOpenState, 600);
+  /* désactivé: état appliqué via MutationObserver pour éviter le clignotement */
+})();
+
+
+/* HOTFIX 20260617 — Info trafic : refresh arrière-plan sans clignotement */
+(function(){
+  if(window.__v7TrafficNoFlicker) return;
+  window.__v7TrafficNoFlicker = true;
+
+  const KEY = "v7TrafficAccordionOpen";
+  let raf = null;
+
+  function readOpen(){
+    try { return new Set(JSON.parse(localStorage.getItem(KEY) || "[]")); }
+    catch(e){ return new Set(); }
+  }
+
+  function titleOf(group){
+    return (group.querySelector(".v7-traffic-group-title span")?.textContent || "").trim();
+  }
+
+  function applyQuiet(){
+    if(!document.body.classList.contains("traffic-open")) return;
+
+    const open = readOpen();
+
+    document.querySelectorAll(".v7-traffic-group").forEach(group => {
+      const title = group.querySelector(".v7-traffic-group-title");
+      const grid = group.querySelector(".v7-traffic-grid");
+      const name = titleOf(group);
+      if(!title || !grid || !name) return;
+
+      group.classList.add("traffic-accordion-ready");
+
+      const shouldOpen = open.has(name);
+      const isOpen = group.classList.contains("is-open");
+
+      if(isOpen !== shouldOpen){
+        group.classList.toggle("is-open", shouldOpen);
+      }
+
+      if(title.getAttribute("aria-expanded") !== String(shouldOpen)){
+        title.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
+      }
+
+      if(grid.getAttribute("aria-hidden") !== String(!shouldOpen)){
+        grid.setAttribute("aria-hidden", shouldOpen ? "false" : "true");
+      }
+    });
+  }
+
+  function scheduleQuiet(){
+    if(raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => {
+      raf = null;
+      applyQuiet();
+    });
+  }
+
+  new MutationObserver(scheduleQuiet).observe(document.querySelector("#trafficContent") || document.body, {
+    childList: true,
+    subtree: true
+  });
+
+  document.addEventListener("visibilitychange", scheduleQuiet);
+  window.addEventListener("focus", scheduleQuiet);
+  window.addEventListener("load", scheduleQuiet);
 })();
