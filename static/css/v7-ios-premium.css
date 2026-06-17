@@ -2221,3 +2221,57 @@ body:not(.horaires-open) #horairesView.open {
     color:#64748b!important;
   }
 }
+
+/* THEME HARMONISATION 20260617 — light/dark final pass */
+@media (prefers-color-scheme: dark) {
+  body.horaires-open .hor-empty,
+  body.horaires-open .hor-hint {
+    background: rgba(17, 28, 46, .92) !important;
+    color: #cbd5e1 !important;
+    border-color: rgba(148, 163, 184, .22) !important;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .24) !important;
+  }
+
+  body.favoris-open #favorisView.open .v7-detail-head {
+    background: rgba(7, 17, 31, .96) !important;
+    color: #f8fafc !important;
+    border-bottom-color: rgba(148, 163, 184, .22) !important;
+  }
+
+  body.favoris-open #favorisView.open .v7-detail-head h2,
+  body.favoris-open #favorisTitle {
+    color: #f8fafc !important;
+    text-shadow: none !important;
+  }
+
+  body.favoris-open #favorisBack {
+    background: rgba(15, 23, 42, .92) !important;
+    color: #f8fafc !important;
+    border-color: rgba(148, 163, 184, .30) !important;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .42) !important;
+  }
+
+  body.favoris-open .v7-favoris-group {
+    background: rgba(15, 23, 42, .88) !important;
+    color: #f8fafc !important;
+    border-color: rgba(148, 163, 184, .22) !important;
+    box-shadow: 0 18px 44px rgba(0, 0, 0, .30) !important;
+  }
+
+  body.favoris-open .v7-fav-row {
+    background: rgba(17, 28, 46, .92) !important;
+    color: #f8fafc !important;
+    border-color: rgba(148, 163, 184, .20) !important;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, .24) !important;
+  }
+
+  body.favoris-open .v7-fav-info strong {
+    color: #f8fafc !important;
+  }
+
+  body.favoris-open .v7-fav-info small,
+  body.favoris-open .v7-fav-row::after {
+    color: #94a3b8 !important;
+  }
+}
+
