@@ -5925,3 +5925,48 @@ ${sections.map(offlineSectionHtml).join("")}
     }
   });
 })();
+
+
+/* FIX SAFE 20260617 — Itinéraire Date/Heure : correction ciblée non bloquante */
+(function(){
+  if(window.__v7ItiDateHourSafeFix) return;
+  window.__v7ItiDateHourSafeFix = true;
+
+  function apply(){
+    if(!document.body.classList.contains("itineraire-open")) return;
+
+    const root = document.querySelector("#itineraireView, .v7-itineraire-view, body.itineraire-open");
+    if(!root) return;
+
+    const candidates = Array.from(root.querySelectorAll("div, section, form"))
+      .filter(el => {
+        const t = (el.textContent || "").replace(/\s+/g," ").trim();
+        return /\bDate\b/.test(t) && /\bHeure\b/.test(t) && /Calculer l’itinéraire|Calculer l'itinéraire/.test(t);
+      })
+      .sort((a,b) => a.textContent.length - b.textContent.length);
+
+    const form = candidates[0];
+    if(!form) return;
+
+    const dateLabel = Array.from(form.querySelectorAll("*")).find(el => (el.textContent || "").trim() === "Date");
+    const hourLabel = Array.from(form.querySelectorAll("*")).find(el => (el.textContent || "").trim() === "Heure");
+    if(!dateLabel || !hourLabel) return;
+
+    const dateBox = dateLabel.parentElement;
+    const hourBox = hourLabel.parentElement;
+    if(!dateBox || !hourBox || dateBox === hourBox) return;
+
+    const row = dateBox.parentElement === hourBox.parentElement ? dateBox.parentElement : null;
+    if(!row) return;
+
+    row.classList.add("v7-iti-date-hour-row-safe");
+    dateBox.classList.add("v7-iti-date-hour-cell-safe");
+    hourBox.classList.add("v7-iti-date-hour-cell-safe");
+  }
+
+  window.addEventListener("load", apply);
+  window.addEventListener("pageshow", apply);
+  document.addEventListener("click", () => setTimeout(apply, 80), true);
+  new MutationObserver(apply).observe(document.body, {childList:true, subtree:true, attributes:true, attributeFilter:["class"]});
+  setInterval(apply, 1000);
+})();
