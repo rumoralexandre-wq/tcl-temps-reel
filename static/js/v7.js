@@ -5603,3 +5603,22 @@ ${sections.map(offlineSectionHtml).join("")}
   window.addEventListener("focus", scheduleQuiet);
   window.addEventListener("load", scheduleQuiet);
 })();
+
+
+/* HOTFIX 20260617 — Info trafic : fermé au démarrage */
+(function(){
+  const KEY = "v7TrafficAccordionOpen";
+  try { localStorage.removeItem(KEY); } catch(e) {}
+
+  function closeTrafficOnFreshOpen(){
+    document.querySelectorAll(".v7-traffic-group").forEach(group => {
+      const title = group.querySelector(".v7-traffic-group-title");
+      const grid = group.querySelector(".v7-traffic-grid");
+      group.classList.remove("is-open");
+      if(title) title.setAttribute("aria-expanded", "false");
+      if(grid) grid.setAttribute("aria-hidden", "true");
+    });
+  }
+
+  window.addEventListener("pageshow", () => setTimeout(closeTrafficOnFreshOpen, 120));
+})();

@@ -1882,3 +1882,47 @@ body:not(.horaires-open) #horairesView.open {
     font-size: 24px !important;
   }
 }
+
+
+/* HOTFIX 20260617 — Info trafic : lignes en petites pilules */
+@media (max-width: 1024px) {
+  body.traffic-open .v7-traffic-group.is-open .v7-traffic-grid {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    align-items: flex-start !important;
+  }
+
+  body.traffic-open .v7-traffic-line-card {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 0 9px !important;
+    gap: 6px !important;
+
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 999px !important;
+  }
+
+  body.traffic-open .v7-traffic-line-badge {
+    min-width: 28px !important;
+    height: 20px !important;
+    padding: 0 8px !important;
+    border-radius: 999px !important;
+    font-size: 11px !important;
+    font-weight: 1000 !important;
+  }
+
+  body.traffic-open .v7-traffic-line-count {
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    white-space: nowrap !important;
+  }
+}
