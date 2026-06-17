@@ -1401,3 +1401,64 @@ body:not(.horaires-open) #horairesView.open {
     right: max(14px, env(safe-area-inset-right, 0px)) !important;
   }
 }
+
+/* HOTFIX 20260617 — GPS visible clair/sombre + retour horaires sombre */
+@media (max-width: 767px) {
+  body.v7-home:not(.line-open):not(.traffic-open):not(.lignes-open):not(.favoris-open):not(.autour-open):not(.reglages-open):not(.horaires-open):not(.itineraire-open):not(.vehicle-portrait-open):not(.sidebar-open) button#recenterMap.v7-recenter-map {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    top: calc(env(safe-area-inset-top, 0px) + 78px) !important;
+    right: max(14px, env(safe-area-inset-right, 0px)) !important;
+    bottom: auto !important;
+    left: auto !important;
+    width: 56px !important;
+    height: 56px !important;
+    border-radius: 22px !important;
+    z-index: 9999 !important;
+    background: rgba(255,255,255,.92) !important;
+    color: #0f172a !important;
+    border: 1px solid rgba(15,23,42,.10) !important;
+    box-shadow: 0 14px 36px rgba(15,23,42,.18) !important;
+  }
+
+  body.v7-home:not(.line-open):not(.traffic-open):not(.lignes-open):not(.favoris-open):not(.autour-open):not(.reglages-open):not(.horaires-open):not(.itineraire-open):not(.vehicle-portrait-open):not(.sidebar-open) button#recenterMap.v7-recenter-map svg,
+  body.v7-home:not(.line-open):not(.traffic-open):not(.lignes-open):not(.favoris-open):not(.autour-open):not(.reglages-open):not(.horaires-open):not(.itineraire-open):not(.vehicle-portrait-open):not(.sidebar-open) button#recenterMap.v7-recenter-map svg * {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    color: #0f172a !important;
+    stroke: #0f172a !important;
+    fill: none !important;
+  }
+}
+
+@media (max-width: 767px) and (prefers-color-scheme: dark) {
+  body.v7-home:not(.line-open):not(.traffic-open):not(.lignes-open):not(.favoris-open):not(.autour-open):not(.reglages-open):not(.horaires-open):not(.itineraire-open):not(.vehicle-portrait-open):not(.sidebar-open) button#recenterMap.v7-recenter-map {
+    background: rgba(15,23,42,.92) !important;
+    color: #f8fafc !important;
+    border-color: rgba(148,163,184,.30) !important;
+    box-shadow: 0 14px 36px rgba(0,0,0,.45) !important;
+  }
+
+  body.v7-home:not(.line-open):not(.traffic-open):not(.lignes-open):not(.favoris-open):not(.autour-open):not(.reglages-open):not(.horaires-open):not(.itineraire-open):not(.vehicle-portrait-open):not(.sidebar-open) button#recenterMap.v7-recenter-map svg,
+  body.v7-home:not(.line-open):not(.traffic-open):not(.lignes-open):not(.favoris-open):not(.autour-open):not(.reglages-open):not(.horaires-open):not(.itineraire-open):not(.vehicle-portrait-open):not(.sidebar-open) button#recenterMap.v7-recenter-map svg * {
+    color: #f8fafc !important;
+    stroke: #f8fafc !important;
+    fill: none !important;
+  }
+
+  body.horaires-open button#horairesBack.hor-back-btn {
+    background: #111c2e !important;
+    color: #f8fafc !important;
+    border-color: rgba(148,163,184,.30) !important;
+  }
+
+  body.horaires-open button#horairesBack.hor-back-btn svg,
+  body.horaires-open button#horairesBack.hor-back-btn svg * {
+    stroke: #f8fafc !important;
+  }
+}
