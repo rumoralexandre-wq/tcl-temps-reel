@@ -5828,3 +5828,77 @@ ${sections.map(offlineSectionHtml).join("")}
   window.addEventListener("pageshow",applyFavColors);
   setInterval(applyFavColors,1000);
 })();
+
+
+/* HOTFIX 20260617 — Accueil proximité : refresh silencieux + priorité temps réel */
+(function(){
+  if(window.__v7HomeNearbySilentRealtime) return;
+  window.__v7HomeNearbySilentRealtime = true;
+
+  const proto = Element.prototype;
+  const desc = Object.getOwnPropertyDescriptor(proto, "innerHTML");
+  if(!desc || !desc.get || !desc.set) return;
+
+  function norm(s){
+    return String(s || "")
+      .replace(/\s+/g, " ")
+      .replace(/>\s+</g, "><")
+      .trim();
+  }
+
+  function rowKey(row){
+    const clone = row.cloneNode(true);
+    clone.querySelectorAll("em, small").forEach(x => x.remove());
+    const txt = clone.textContent || "";
+    const line = (row.querySelector(".v7-nearby-time-badge, .hor-line-badge, b, strong")?.textContent || "").trim();
+    return (line + "|" + txt)
+      .toLowerCase()
+      .replace(/temps réel|temps reel|théorique|theorique/g, "")
+      .replace(/\b\d{1,2}:\d{2}\b/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function cleanNearbyHtml(html){
+    if(typeof html !== "string" || !html.includes("v7-nearby-time-row")) return html;
+
+    const tmp = document.createElement("div");
+    tmp.innerHTML = html;
+
+    const rows = Array.from(tmp.querySelectorAll(".v7-nearby-time-row"));
+    const realKeys = new Set();
+
+    rows.forEach(row => {
+      const txt = (row.textContent || "").toLowerCase();
+      if(txt.includes("temps réel") || txt.includes("temps reel")){
+        realKeys.add(rowKey(row));
+      }
+    });
+
+    rows.forEach(row => {
+      const txt = (row.textContent || "").toLowerCase();
+      const isTheo = txt.includes("théorique") || txt.includes("theorique");
+      if(isTheo && realKeys.has(rowKey(row))){
+        row.remove();
+      }
+    });
+
+    return tmp.innerHTML;
+  }
+
+  Object.defineProperty(proto, "innerHTML", {
+    configurable: true,
+    enumerable: desc.enumerable,
+    get: desc.get,
+    set: function(value){
+      if(this && this.id === "v7HomeNearbyList"){
+        const cleaned = cleanNearbyHtml(value);
+        if(norm(desc.get.call(this)) === norm(cleaned)){
+          return;
+        }
+        return desc.set.call(this, cleaned);
+      }
+      return desc.set.call(this, value);
+    }
+  });
+})();
