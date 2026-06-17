@@ -5370,3 +5370,55 @@ ${sections.map(offlineSectionHtml).join("")}
   window.__itiPlan = plan;
   window.v7Itineraire = {open:openPanel, close:closePanel};
 })();
+
+
+/* HOTFIX 20260617 — Navigation Info trafic : retour détail -> liste */
+(function(){
+  function q(s){ return document.querySelector(s); }
+
+  function trafficHasList(){
+    return !!q("#trafficList");
+  }
+
+  function showTrafficList(){
+    const title = q("#trafficTitle");
+    const content = q("#trafficContent");
+    if(title) title.textContent = "Info trafic";
+    if(content && !trafficHasList()){
+      content.innerHTML = '<div id="trafficList"></div>';
+    }
+    try {
+      if(typeof loadTraffic === "function") loadTraffic();
+    } catch(e) {
+      console.warn("Retour liste trafic impossible", e);
+    }
+  }
+
+  const oldOpenTrafficPage = window.openTrafficPage;
+  if(typeof oldOpenTrafficPage === "function" && !window.__v7TrafficBackFixed){
+    window.openTrafficPage = function(line){
+      document.body.classList.add("traffic-detail-open");
+      return oldOpenTrafficPage.apply(this, arguments);
+    };
+  }
+
+  document.addEventListener("click", function(e){
+    const back = e.target.closest && e.target.closest("#trafficBack");
+    if(back && document.body.classList.contains("traffic-open")){
+      if(document.body.classList.contains("traffic-detail-open") || !trafficHasList()){
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        document.body.classList.remove("traffic-detail-open");
+        showTrafficList();
+      }
+    }
+
+    const traficNav = e.target.closest && e.target.closest('[data-section="trafic"],[data-section="traffic"]');
+    if(traficNav){
+      document.body.classList.remove("traffic-detail-open");
+      setTimeout(showTrafficList, 80);
+    }
+  }, true);
+
+  window.__v7TrafficBackFixed = true;
+})();
