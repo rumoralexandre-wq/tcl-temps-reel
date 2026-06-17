@@ -1825,3 +1825,29 @@ body:not(.horaires-open) #horairesView.open {
     transform: rotate(0deg) !important;
   }
 }
+
+/* HOTFIX 20260617 — centrage parfait du chevron accordéon trafic */
+@media (max-width: 1024px) {
+  body.traffic-open .v7-traffic-group-title::after {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    max-width: 36px !important;
+    flex: 0 0 36px !important;
+    padding: 0 !important;
+    margin-left: auto !important;
+    line-height: 1 !important;
+    font-size: 24px !important;
+    font-weight: 800 !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+    transform: rotate(-90deg) translateY(0) !important;
+  }
+
+  body.traffic-open .v7-traffic-group.is-open .v7-traffic-group-title::after {
+    transform: rotate(0deg) translateY(0) !important;
+  }
+}
