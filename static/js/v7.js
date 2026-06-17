@@ -5622,3 +5622,31 @@ ${sections.map(offlineSectionHtml).join("")}
 
   window.addEventListener("pageshow", () => setTimeout(closeTrafficOnFreshOpen, 120));
 })();
+
+
+/* HOTFIX 20260617 — Info trafic : préserver la position au refresh */
+(function(){
+  if(window.__v7TrafficScrollPreserve) return;
+  window.__v7TrafficScrollPreserve = true;
+
+  const originalLoadTraffic = window.loadTraffic;
+
+  if(typeof originalLoadTraffic === "function"){
+    window.loadTraffic = async function(){
+      const isTraffic = document.body.classList.contains("traffic-open");
+      const scroller = document.querySelector("#trafficView.open") || document.scrollingElement || document.documentElement;
+      const beforeTop = isTraffic ? scroller.scrollTop : 0;
+
+      const result = await originalLoadTraffic.apply(this, arguments);
+
+      if(isTraffic){
+        requestAnimationFrame(() => {
+          scroller.scrollTop = beforeTop;
+          setTimeout(() => { scroller.scrollTop = beforeTop; }, 80);
+        });
+      }
+
+      return result;
+    };
+  }
+})();

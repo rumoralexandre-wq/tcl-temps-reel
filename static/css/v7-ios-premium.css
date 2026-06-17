@@ -1926,3 +1926,38 @@ body:not(.horaires-open) #horairesView.open {
     white-space: nowrap !important;
   }
 }
+
+
+/* HOTFIX 20260617 — Info trafic : pilules alignées en vraie grille */
+@media (max-width: 1024px) {
+  body.traffic-open .v7-traffic-group.is-open .v7-traffic-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    align-items: stretch !important;
+  }
+
+  body.traffic-open .v7-traffic-line-card {
+    width: 100% !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    padding: 0 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 5px !important;
+    border-radius: 999px !important;
+  }
+
+  body.traffic-open .v7-traffic-line-badge {
+    min-width: 32px !important;
+    height: 21px !important;
+    padding: 0 7px !important;
+    font-size: 11px !important;
+  }
+
+  body.traffic-open .v7-traffic-line-count {
+    font-size: 10px !important;
+    white-space: nowrap !important;
+  }
+}
