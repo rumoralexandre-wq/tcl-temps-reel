@@ -2275,3 +2275,85 @@ body:not(.horaires-open) #horairesView.open {
   }
 }
 
+/* ITINERAIRE VISUAL FIX 20260617 — popup scroll + light theme + date/time spacing */
+.iti-route-popup-head {
+  position: relative !important;
+  top: auto !important;
+  z-index: 1 !important;
+  background: linear-gradient(135deg, rgba(255,255,255,.96), rgba(224,242,254,.92)) !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(15, 23, 42, .08) !important;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, .10), inset 0 1px 0 rgba(255,255,255,.82) !important;
+}
+
+.iti-route-popup-head span,
+.iti-route-popup-head p {
+  color: #475569 !important;
+}
+
+.iti-route-popup-head strong {
+  color: #0f172a !important;
+}
+
+.iti-route-popup-head button,
+.iti-popup-close {
+  background: rgba(15, 23, 42, .08) !important;
+  color: #0f172a !important;
+}
+
+.iti-popup-download {
+  background: rgba(15, 23, 42, .08) !important;
+  color: #0369a1 !important;
+  border: 1px solid rgba(15, 23, 42, .08) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  .iti-route-popup-head {
+    background: linear-gradient(135deg, rgba(2,6,23,.98), rgba(15,58,74,.92)) !important;
+    color: #f8fafc !important;
+    border-color: rgba(148, 163, 184, .22) !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, .36), inset 0 1px 0 rgba(255,255,255,.06) !important;
+  }
+
+  .iti-route-popup-head span,
+  .iti-route-popup-head p {
+    color: rgba(248, 250, 252, .82) !important;
+  }
+
+  .iti-route-popup-head strong {
+    color: #f8fafc !important;
+  }
+
+  .iti-route-popup-head button,
+  .iti-popup-close {
+    background: rgba(255, 255, 255, .14) !important;
+    color: #f8fafc !important;
+  }
+
+  .iti-popup-download {
+    background: rgba(255, 255, 255, .14) !important;
+    color: #f8fafc !important;
+    border-color: rgba(255, 255, 255, .10) !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .v7-itineraire-view .iti-time-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+
+  .v7-itineraire-view .iti-time-grid .iti-field {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .v7-itineraire-view .iti-time-grid input {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+  }
+}
+
