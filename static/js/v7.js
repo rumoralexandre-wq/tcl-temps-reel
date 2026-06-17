@@ -5925,3 +5925,47 @@ ${sections.map(offlineSectionHtml).join("")}
     }
   });
 })();
+
+/* HOTFIX 20260617 — Itinéraire Date/Heure : détection réelle DOM */
+(function(){
+  if(window.__v7ItiDateHourDomFix) return;
+  window.__v7ItiDateHourDomFix = true;
+
+  function txt(el){ return (el?.textContent || "").trim().toLowerCase(); }
+
+  function apply(){
+    if(!document.body.classList.contains("itineraire-open")) return;
+
+    const root =
+      document.querySelector("#itineraireView") ||
+      document.querySelector(".v7-itineraire-view") ||
+      document;
+
+    const labels = Array.from(root.querySelectorAll("label, span, small, b, strong, div"));
+    const dateLabel = labels.find(el => /^date$/.test(txt(el)));
+    const hourLabel = labels.find(el => /^(heure|horaire)$/.test(txt(el)));
+
+    if(!dateLabel || !hourLabel) return;
+
+    const dateBox = dateLabel.closest("label, .iti-field, .iti-form-field, .iti-control, .field, div");
+    const hourBox = hourLabel.closest("label, .iti-field, .iti-form-field, .iti-control, .field, div");
+    if(!dateBox || !hourBox || dateBox === hourBox) return;
+
+    let parent = dateBox.parentElement;
+    while(parent && parent !== root && !parent.contains(hourBox)){
+      parent = parent.parentElement;
+    }
+
+    if(parent){
+      parent.classList.add("iti-date-hour-fixed-row");
+      dateBox.classList.add("iti-date-hour-fixed-item");
+      hourBox.classList.add("iti-date-hour-fixed-item");
+    }
+  }
+
+  new MutationObserver(apply).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:["class"]});
+  window.addEventListener("load",apply);
+  window.addEventListener("pageshow",apply);
+  document.addEventListener("click",()=>setTimeout(apply,120),true);
+  setInterval(apply,700);
+})();
