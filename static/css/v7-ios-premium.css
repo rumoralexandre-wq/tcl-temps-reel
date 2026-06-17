@@ -1961,3 +1961,131 @@ body:not(.horaires-open) #horairesView.open {
     white-space: nowrap !important;
   }
 }
+
+
+/* HOTFIX 20260617 — Harmonisation finale Lignes / Trafic / Horaires */
+
+/* 1) Palette unique TCL par famille, réutilisée partout */
+:root {
+  --tcl-kind-metro-bg: #2563eb;
+  --tcl-kind-metro-fg: #ffffff;
+
+  --tcl-kind-tram-bg: #8b5cf6;
+  --tcl-kind-tram-fg: #ffffff;
+
+  --tcl-kind-funi-bg: #84cc16;
+  --tcl-kind-funi-fg: #10200a;
+
+  --tcl-kind-forte-bg: #64748b;
+  --tcl-kind-forte-fg: #ffffff;
+
+  --tcl-kind-bus-bg: #f59e0b;
+  --tcl-kind-bus-fg: #111827;
+
+  --tcl-kind-jd-bg: #0ea5e9;
+  --tcl-kind-jd-fg: #082f49;
+}
+
+.tcl-kind-metro,
+.v7-traffic-line-badge.metro {
+  background: var(--tcl-kind-metro-bg) !important;
+  color: var(--tcl-kind-metro-fg) !important;
+}
+
+.tcl-kind-tram,
+.v7-traffic-line-badge.tram {
+  background: var(--tcl-kind-tram-bg) !important;
+  color: var(--tcl-kind-tram-fg) !important;
+}
+
+.tcl-kind-funi,
+.v7-traffic-line-badge.funi {
+  background: var(--tcl-kind-funi-bg) !important;
+  color: var(--tcl-kind-funi-fg) !important;
+}
+
+.tcl-kind-forte,
+.v7-traffic-line-badge.forte {
+  background: var(--tcl-kind-forte-bg) !important;
+  color: var(--tcl-kind-forte-fg) !important;
+}
+
+.tcl-kind-bus,
+.v7-traffic-line-badge.bus {
+  background: var(--tcl-kind-bus-bg) !important;
+  color: var(--tcl-kind-bus-fg) !important;
+}
+
+.tcl-kind-jd,
+.v7-traffic-line-badge.jd {
+  background: var(--tcl-kind-jd-bg) !important;
+  color: var(--tcl-kind-jd-fg) !important;
+}
+
+/* 2) Onglet Lignes : architecture plus cohérente avec Horaires / Trafic */
+@media (max-width: 1024px) {
+  body.lignes-open #lignesView.open {
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    border-radius: 0 !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    box-shadow: none !important;
+  }
+
+  body.lignes-open #lignesView.open::before,
+  body.lignes-open #lignesView.open .v7-sheet-handle {
+    display: none !important;
+  }
+
+  body.lignes-open #lignesView.open .v7-detail-head {
+    padding: calc(env(safe-area-inset-top, 0px) + 18px) 26px 18px !important;
+    border-bottom: 1px solid rgba(148,163,184,.22) !important;
+  }
+
+  body.lignes-open #lignesView.open #lignesContent {
+    padding: 26px 30px calc(env(safe-area-inset-bottom, 0px) + 110px) !important;
+  }
+
+  body.lignes-open #lignesView.open #lignesContent .v7-lignes-category {
+    border-radius: 28px !important;
+    padding: 18px !important;
+    background: rgba(255,255,255,.92) !important;
+    border: 1px solid rgba(15,23,42,.08) !important;
+    box-shadow: 0 18px 44px rgba(15,23,42,.08) !important;
+    overflow: hidden !important;
+  }
+
+  body.lignes-open #lignesView.open #lignesContent .v7-lignes-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  body.lignes-open #lignesView.open #lignesContent .v7-ligne-pill {
+    border-radius: 18px !important;
+    min-height: 72px !important;
+    background: rgba(255,255,255,.96) !important;
+    border: 1px solid rgba(15,23,42,.08) !important;
+    box-shadow: 0 10px 26px rgba(15,23,42,.06) !important;
+  }
+}
+
+/* 3) Dark mode Lignes cohérent */
+@media (max-width: 1024px) and (prefers-color-scheme: dark) {
+  body.lignes-open #lignesView.open #lignesContent .v7-lignes-category {
+    background: rgba(15,23,42,.88) !important;
+    border-color: rgba(148,163,184,.22) !important;
+    box-shadow: 0 18px 44px rgba(0,0,0,.28) !important;
+  }
+
+  body.lignes-open #lignesView.open #lignesContent .v7-ligne-pill {
+    background: rgba(17,28,46,.92) !important;
+    border-color: rgba(148,163,184,.20) !important;
+    box-shadow: 0 10px 26px rgba(0,0,0,.22) !important;
+  }
+}

@@ -5716,3 +5716,90 @@ ${sections.map(offlineSectionHtml).join("")}
     return result;
   };
 })();
+
+
+/* HOTFIX 20260617 — Trafic fermé à chaque entrée + classes couleurs TCL globales */
+(function(){
+  if(window.__v7FinalTrafficAndColorHarmony) return;
+  window.__v7FinalTrafficAndColorHarmony = true;
+
+  const TRAFFIC_KEY = "v7TrafficAccordionOpen";
+  let wasTrafficOpen = document.body.classList.contains("traffic-open");
+
+  function lineKind(code){
+    const v = String(code || "").trim().toUpperCase();
+    if(/^[ABCD]$/.test(v)) return "metro";
+    if(/^T/.test(v)) return "tram";
+    if(/^F/.test(v)) return "funi";
+    if(/^C\d+/.test(v)) return "forte";
+    if(/^JD/.test(v)) return "jd";
+    return "bus";
+  }
+
+  function closeTrafficGroups(){
+    try { localStorage.removeItem(TRAFFIC_KEY); } catch(e){}
+
+    document.querySelectorAll(".v7-traffic-group").forEach(group => {
+      const title = group.querySelector(".v7-traffic-group-title");
+      const grid = group.querySelector(".v7-traffic-grid");
+      group.classList.remove("is-open");
+      if(title) title.setAttribute("aria-expanded", "false");
+      if(grid) grid.setAttribute("aria-hidden", "true");
+    });
+  }
+
+  function closeTrafficGroupsSoon(){
+    closeTrafficGroups();
+    setTimeout(closeTrafficGroups, 80);
+    setTimeout(closeTrafficGroups, 250);
+    setTimeout(closeTrafficGroups, 700);
+  }
+
+  function harmonizeLineBadges(root=document){
+    root.querySelectorAll(
+      ".v7-traffic-line-badge, .v7-ligne-pill-badge, .hor-line-badge, .iti-line-badge, .bus-pill, .vehicle-portrait-pill-label"
+    ).forEach(el => {
+      const code = (el.textContent || "").trim().split(/\s+/)[0];
+      if(!code) return;
+
+      el.classList.remove(
+        "tcl-kind-metro","tcl-kind-tram","tcl-kind-funi",
+        "tcl-kind-forte","tcl-kind-bus","tcl-kind-jd"
+      );
+      el.classList.add("tcl-kind-" + lineKind(code));
+    });
+  }
+
+  const bodyObserver = new MutationObserver(() => {
+    const isTrafficOpen = document.body.classList.contains("traffic-open");
+
+    if(isTrafficOpen && !wasTrafficOpen){
+      closeTrafficGroupsSoon();
+    }
+
+    wasTrafficOpen = isTrafficOpen;
+    harmonizeLineBadges();
+  });
+
+  bodyObserver.observe(document.body, { attributes:true, attributeFilter:["class"] });
+
+  new MutationObserver(() => {
+    harmonizeLineBadges();
+    if(document.body.classList.contains("traffic-open") && !wasTrafficOpen){
+      closeTrafficGroupsSoon();
+    }
+  }).observe(document.documentElement, { childList:true, subtree:true });
+
+  window.addEventListener("pageshow", () => {
+    try { localStorage.removeItem(TRAFFIC_KEY); } catch(e){}
+    if(document.body.classList.contains("traffic-open")) closeTrafficGroupsSoon();
+    harmonizeLineBadges();
+  });
+
+  window.addEventListener("load", () => {
+    try { localStorage.removeItem(TRAFFIC_KEY); } catch(e){}
+    harmonizeLineBadges();
+  });
+
+  harmonizeLineBadges();
+})();
