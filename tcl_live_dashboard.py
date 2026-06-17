@@ -773,8 +773,19 @@ def _tcl_build_journey_pdf(journey, payload=None):
     objects = []
     page_ids = []
     for lines in pages:
-        ops = ["BT"]
+        ops = [
+            "0.94 0.98 1 rg 0 760 595 82 re f",
+            "0.00 0.63 0.84 rg 0 760 595 8 re f",
+            "0.07 0.09 0.16 rg",
+            "BT"
+        ]
         for style, size, x, yy, text in lines:
+            if style in ("title", "h1"):
+                ops.append("0.03 0.10 0.22 rg")
+            elif style == "h2":
+                ops.append("0.02 0.48 0.72 rg")
+            else:
+                ops.append("0.10 0.13 0.20 rg")
             font = "/F2" if style in ("title", "h1", "h2") else "/F1"
             ops.append(f"{font} {size} Tf 1 0 0 1 {x} {yy} Tm ({_tcl_pdf_escape(text)}) Tj")
         ops.append("ET")
@@ -797,8 +808,8 @@ def _tcl_build_journey_pdf(journey, payload=None):
         obj = obj.replace(b"/F2 0 0 R", f"/F2 {font2_id} 0 R".encode())
         patched.append(obj)
     patched.append(f"<< /Type /Pages /Kids [{kids}] /Count {len(page_ids)} >>".encode())
-    patched.append(b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>")
-    patched.append(b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>")
+    patched.append(b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>")
+    patched.append(b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>")
     patched.append(f"<< /Type /Catalog /Pages {pages_id} 0 R >>".encode())
 
     pdf = bytearray(b"%PDF-1.4\n%\xe2\xe3\xcf\xd3\n")

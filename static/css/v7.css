@@ -7558,3 +7558,46 @@ body.itineraire-open .iti-journey-card::after {
     margin-bottom: 22px !important;
   }
 }
+
+
+/* FIX 20260617 — Itinéraire résultats : durée et chevron séparés */
+body.itineraire-open .iti-journey-card {
+  position: relative !important;
+  padding-right: 150px !important;
+}
+
+body.itineraire-open .iti-journey-main em {
+  position: absolute !important;
+  right: 28px !important;
+  top: 54px !important;
+  transform: none !important;
+  margin: 0 !important;
+  z-index: 3 !important;
+}
+
+body.itineraire-open .iti-journey-card::after {
+  content: "›" !important;
+  position: absolute !important;
+  right: 42px !important;
+  top: 116px !important;
+  width: 30px !important;
+  height: 30px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 999px !important;
+  background: rgba(224,242,254,.95) !important;
+  color: #0284c7 !important;
+  font-size: 28px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  box-shadow: 0 8px 20px rgba(14,165,233,.18) !important;
+  z-index: 2 !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  body.itineraire-open .iti-journey-card::after {
+    background: rgba(14,165,233,.20) !important;
+    color: #7dd3fc !important;
+  }
+}
