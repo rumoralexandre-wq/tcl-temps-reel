@@ -5650,3 +5650,69 @@ ${sections.map(offlineSectionHtml).join("")}
     };
   }
 })();
+
+/* HOTFIX 20260617 — Info trafic : refresh data sans remonter la page */
+(function(){
+  if(window.__v7TrafficSilentRefreshNoScroll) return;
+  window.__v7TrafficSilentRefreshNoScroll = true;
+
+  const originalLoadTraffic = window.loadTraffic;
+
+  function trafficIsBeingConsulted(){
+    return document.body.classList.contains("traffic-open")
+      && document.querySelector(".v7-traffic-group.is-open");
+  }
+
+  function getScrollState(){
+    return {
+      win: window.scrollY || 0,
+      doc: document.documentElement.scrollTop || 0,
+      body: document.body.scrollTop || 0,
+      view: document.querySelector("#trafficView")?.scrollTop || 0,
+      content: document.querySelector("#trafficContent")?.scrollTop || 0
+    };
+  }
+
+  function restoreScrollState(s){
+    requestAnimationFrame(() => {
+      window.scrollTo(0, s.win);
+      document.documentElement.scrollTop = s.doc;
+      document.body.scrollTop = s.body;
+      const view = document.querySelector("#trafficView");
+      const content = document.querySelector("#trafficContent");
+      if(view) view.scrollTop = s.view;
+      if(content) content.scrollTop = s.content;
+
+      setTimeout(() => {
+        window.scrollTo(0, s.win);
+        document.documentElement.scrollTop = s.doc;
+        document.body.scrollTop = s.body;
+        if(view) view.scrollTop = s.view;
+        if(content) content.scrollTop = s.content;
+      }, 120);
+    });
+  }
+
+  window.loadTraffic = async function(){
+    const scrollState = getScrollState();
+
+    if(trafficIsBeingConsulted()){
+      try{
+        const j = await (await fetch("/api/traffic?t=" + Date.now())).json();
+        const alerts = j.alerts || j.items || [];
+        window.v7TrafficAlerts = (typeof sortTrafficAlertsByDate === "function")
+          ? sortTrafficAlertsByDate(alerts)
+          : alerts;
+      }catch(e){
+        console.warn("Refresh trafic silencieux impossible", e);
+      }
+
+      restoreScrollState(scrollState);
+      return window.v7TrafficAlerts || [];
+    }
+
+    const result = await originalLoadTraffic.apply(this, arguments);
+    restoreScrollState(scrollState);
+    return result;
+  };
+})();
