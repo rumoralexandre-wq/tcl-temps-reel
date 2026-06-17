@@ -799,7 +799,7 @@ def _tcl_build_journey_pdf(journey, payload=None):
     patched.append(f"<< /Type /Pages /Kids [{kids}] /Count {len(page_ids)} >>".encode())
     patched.append(b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>")
     patched.append(b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>")
-    patched.append(f"<< /Type /Catalog /Pages {catalog_id} 0 R >>".encode())
+    patched.append(f"<< /Type /Catalog /Pages {pages_id} 0 R >>".encode())
 
     pdf = bytearray(b"%PDF-1.4\n%\xe2\xe3\xcf\xd3\n")
     offsets = [0]
