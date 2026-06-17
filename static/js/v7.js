@@ -4978,36 +4978,70 @@ function itiSuggestionLabel(it){
     return `${section?.from?.name || "Départ"} → ${section?.to?.name || "Arrivée"}${len ? " · " + Math.round(len) + " m" : ""}`;
   }
 
+
+  function tclAccessItems(section){
+    return [
+      ...(section?.from?.equipmentDetails || []),
+      ...(section?.to?.equipmentDetails || [])
+    ].filter(x => x && x.status && String(x.status).toLowerCase() !== "available");
+  }
+
+  function tclAccessSeverity(item){
+    const txt = String([item?.status,item?.name,item?.cause,item?.message].filter(Boolean).join(" ")).toLowerCase();
+    if(/indisponible|hors service|fermé|ferme|ko|non disponible|rupture|panne/.test(txt)) return "danger";
+    if(/travaux|perturb|attention|maintenance|limité|limite|dégrad|degrad/.test(txt)) return "warning";
+    return "info";
+  }
+
+  function tclAccessLabel(item){
+    return item?.name || item?.cause || item?.message || "Équipement à vérifier";
+  }
+
+  function tclAccessHtml(items){
+    if(!items || !items.length) return "";
+    return `<div class="iti-access-list">` + items.slice(0,3).map(item => {
+      const sev = tclAccessSeverity(item);
+      const icon = sev === "danger" ? "🚫" : sev === "warning" ? "⚠️" : "ℹ️";
+      return `<span class="iti-access iti-access-${sev}">${icon} ${esc(tclAccessLabel(item))}</span>`;
+    }).join("") + `</div>`;
+  }
+
   function tclSectionHtml(section){
     const isTransit = section?.type === "public-transport" || section?.type === "on-demand-transport";
     const minutes = tclMinutes(section?.departure, section?.arrival);
     const line = section?.line || {};
     const bg = "#" + String(line.color || "0ea5e9").replace(/^#/, "");
     const fg = "#" + String(line.textColor || "ffffff").replace(/^#/, "");
-    const equipment = [
-      ...(section?.from?.equipmentDetails || []),
-      ...(section?.to?.equipmentDetails || [])
-    ].filter(x => x && x.status && x.status !== "available");
+    const equipment = tclAccessItems(section);
+    const access = tclAccessHtml(equipment);
     const stops = Array.isArray(section?.intermediateStops) ? section.intermediateStops.length : 0;
 
     if(isTransit){
       return `
-        <article class="iti-timeline-step transit">
+        <article class="iti-timeline-step transit iti-tcl-style-step">
           <div class="iti-line-badge" style="--line-bg:${esc(bg)};--line-fg:${esc(fg)}">${esc(line.code || "TCL")}</div>
-          <div class="iti-step-card" role="button" tabindex="0">
-            <div class="iti-step-title">
-              <strong>${esc(tclHm(section.departure))} → ${esc(tclHm(section.arrival))}</strong>
+          <div class="iti-step-card iti-tcl-step-card" role="button" tabindex="0">
+            <div class="iti-step-title iti-tcl-step-title">
+              <strong>${esc(section?.from?.name || "Départ")} → ${esc(section?.to?.name || "Arrivée")}</strong>
               <span>${esc(minutes)} min</span>
             </div>
-            <p>${esc(tclSectionSummary(section))}</p>
-            <small>Direction ${esc(section.headsign || section.direction?.name || "non précisée")}</small>
+            <p class="iti-tcl-line-summary">
+              <b>${esc(line.mode || "Transport TCL")} ${esc(line.code || "")}</b>
+              <span>Direction ${esc(section.headsign || section.direction?.name || "non précisée")}</span>
+            </p>
+            <div class="iti-tcl-step-meta">
+              <span>${esc(tclHm(section.departure))} → ${esc(tclHm(section.arrival))}</span>
+              <span>${esc(stops)} arrêt${stops > 1 ? "s" : ""}</span>
+            </div>
+            ${access}
+            <button type="button" class="iti-step-toggle">Afficher les détails</button>
             <div class="iti-step-more">
               <div><strong>Ligne :</strong> ${esc(line.code || "TCL")}</div>
               <div><strong>Mode :</strong> ${esc(line.mode || "transport")}</div>
               <div><strong>Montée :</strong> ${esc(section?.from?.name || "—")} à ${esc(tclHm(section.departure))}</div>
               <div><strong>Descente :</strong> ${esc(section?.to?.name || "—")} à ${esc(tclHm(section.arrival))}</div>
               <div><strong>Arrêts intermédiaires :</strong> ${esc(stops)}</div>
-              ${equipment.length ? `<div><strong>Info accessibilité :</strong> ${esc(equipment.map(x => x.name || x.cause || "Équipement indisponible").join(" · "))}</div>` : ""}
+              ${equipment.length ? `<div><strong>Accessibilité :</strong> ${esc(equipment.map(tclAccessLabel).join(" · "))}</div>` : ""}
             </div>
           </div>
         </article>
@@ -5015,15 +5049,18 @@ function itiSuggestionLabel(it){
     }
 
     return `
-      <article class="iti-timeline-step walk">
-        <div class="iti-dot">${section?.type === "bike" ? "◇" : "↗"}</div>
-        <div class="iti-step-card" role="button" tabindex="0">
-          <div class="iti-step-title">
+      <article class="iti-timeline-step walk iti-tcl-style-step">
+        <div class="iti-dot">↗</div>
+        <div class="iti-step-card iti-tcl-step-card" role="button" tabindex="0">
+          <div class="iti-step-title iti-tcl-step-title">
             <strong>${esc(tclModeLabel(section))}</strong>
             <span>${esc(minutes)} min</span>
           </div>
           <p>${esc(tclSectionSummary(section))}</p>
-          <small>${esc(tclHm(section?.departure))} → ${esc(tclHm(section?.arrival))}</small>
+          <div class="iti-tcl-step-meta">
+            <span>${esc(tclHm(section?.departure))} → ${esc(tclHm(section?.arrival))}</span>
+          </div>
+          <button type="button" class="iti-step-toggle">Afficher les détails</button>
           <div class="iti-step-more">
             ${(section?.directions || []).slice(0,6).map(d => `<div>${esc(d.instruction || d.name || "")}</div>`).join("") || `<div>${esc(tclSectionSummary(section))}</div>`}
           </div>
@@ -5031,6 +5068,7 @@ function itiSuggestionLabel(it){
       </article>
     `;
   }
+
 
   function tclJourneyLines(journey){
     return (journey.sections || [])
@@ -5159,10 +5197,11 @@ function itiSuggestionLabel(it){
     return prepareOfficialJourneyPresentation(journeys).allJourneys;
   }
 
+
   function tclJourneyCardHtml(journey, idx, options){
     options = options || {};
     const minutes = tclJourneyMinutes(journey);
-    const modes = tclJourneyModes(journey);
+    const modes = tclJourneyModes(journey).filter(x => !/voiture|vélo|velo/i.test(x));
     const transfers = tclTransferCount(journey);
     const from = journey.sections?.[0]?.from?.name || "Départ";
     const last = journey.sections?.[journey.sections.length - 1];
@@ -5170,9 +5209,10 @@ function itiSuggestionLabel(it){
     const journeyKey = options.journeyKey != null ? options.journeyKey : idx;
     const kicker = options.kicker || (idx === 0 ? "Recommandé" : "Option " + (Number(idx) + 1));
     const bestClass = options.recommended ? "best" : "";
+    const accessCount = (journey.sections || []).reduce((n,s)=>n+tclAccessItems(s).length,0);
 
     return `
-      <button type="button" class="iti-journey-card ${bestClass}" data-iti-journey="${esc(journeyKey)}">
+      <button type="button" class="iti-journey-card iti-tcl-journey-card ${bestClass}" data-iti-journey="${esc(journeyKey)}">
         <span class="iti-journey-kicker">${esc(kicker)}</span>
         <div class="iti-journey-main">
           <strong>${esc(tclMainTitle(journey))}</strong>
@@ -5182,10 +5222,12 @@ function itiSuggestionLabel(it){
         <div class="iti-journey-meta">
           <span>${esc(transfers)} correspondance${transfers > 1 ? "s" : ""}</span>
           <span>${esc(modes.join(" · "))}</span>
+          ${accessCount ? `<span class="iti-access-mini">⚠ Accessibilité</span>` : ""}
         </div>
       </button>
     `;
   }
+
 
   function renderOfficialResult(data){
     const out = qs("#itiOutput");
@@ -5307,46 +5349,43 @@ function itiSuggestionLabel(it){
     `;
   }
 
+
   async function downloadOfficialJourney(journey, result){
     const btn = qs("[data-iti-download]");
     const original = btn?.textContent || "Télécharger l’itinéraire";
     if(btn){
       btn.disabled = true;
-      btn.textContent = "Ouverture du PDF…";
+      btn.textContent = "Préparation du PDF…";
     }
 
     try{
-      const iframeName = "itiPdfDownloadFrame";
-      let iframe = document.querySelector(`iframe[name="${iframeName}"]`);
-      if(!iframe){
-        iframe = document.createElement("iframe");
-        iframe.name = iframeName;
-        iframe.style.position = "fixed";
-        iframe.style.left = "-9999px";
-        iframe.style.top = "-9999px";
-        iframe.style.width = "1px";
-        iframe.style.height = "1px";
-        iframe.style.opacity = "0";
-        iframe.setAttribute("aria-hidden", "true");
-        document.body.appendChild(iframe);
-      }
+      const response = await fetch("/api/tcl/journey_pdf", {
+        method:"POST",
+        cache:"no-store",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({journey, payload:result?.payload || {}})
+      });
+      if(!response.ok) throw new Error("PDF indisponible");
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
 
-      const form = document.createElement("form");
-      form.method = "POST";
-      form.action = "/api/tcl/journey_pdf";
-      form.target = iframeName;
-      form.style.display = "none";
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `itineraire-tcl-${Date.now()}.pdf`;
+      a.rel = "noopener";
+      document.body.appendChild(a);
+      a.click();
 
-      const input = document.createElement("input");
-      input.type = "hidden";
-      input.name = "payload_json";
-      input.value = JSON.stringify({journey, payload:result?.payload || {}});
+      setTimeout(() => {
+        if(/iPad|iPhone|iPod|Safari/i.test(navigator.userAgent || "")){
+          window.open(url, "_blank", "noopener");
+        }
+      }, 350);
 
-      form.appendChild(input);
-      document.body.appendChild(form);
-      form.submit();
-
-      setTimeout(() => form.remove(), 1500);
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+        a.remove();
+      }, 8000);
     }catch(e){
       console.error("itineraire pdf failed", e);
       alert("Le PDF n’a pas pu être généré pour le moment.");
@@ -5356,9 +5395,10 @@ function itiSuggestionLabel(it){
           btn.disabled = false;
           btn.textContent = original;
         }
-      }, 1800);
+      }, 1200);
     }
   }
+
 
   function stepHtml(s){
     if(s.type === "walk"){
