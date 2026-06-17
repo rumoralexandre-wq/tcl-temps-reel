@@ -1668,3 +1668,58 @@ body:not(.horaires-open) #horairesView.open {
     color: #cbd5e1 !important;
   }
 }
+
+/* HOTFIX 20260617 — Info trafic ultra compact premium */
+@media (max-width: 1024px) {
+
+  body.traffic-open .v7-traffic-grid{
+    gap:6px !important;
+  }
+
+  body.traffic-open .v7-traffic-line-card{
+    min-height:38px !important;
+    height:38px !important;
+    padding:0 10px !important;
+
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+
+    border-radius:12px !important;
+  }
+
+  body.traffic-open .v7-traffic-line-badge{
+    min-width:34px !important;
+    height:22px !important;
+    padding:0 10px !important;
+
+    border-radius:11px !important;
+
+    font-size:12px !important;
+    font-weight:900 !important;
+
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+
+    box-shadow:none !important;
+  }
+
+  body.traffic-open .v7-traffic-line-count{
+    font-size:11px !important;
+    font-weight:700 !important;
+    opacity:.85 !important;
+  }
+
+  body.traffic-open .v7-traffic-group{
+    padding:12px !important;
+    border-radius:22px !important;
+  }
+
+  body.traffic-open .v7-traffic-group-title{
+    margin-bottom:8px !important;
+    font-size:12px !important;
+  }
+}
+
