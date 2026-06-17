@@ -2357,3 +2357,89 @@ body:not(.horaires-open) #horairesView.open {
   }
 }
 
+
+/* FIX FINAL 20260617 — itinéraire + timeline/portrait harmonisation */
+@media (max-width: 767px) {
+  body.itineraire-open .iti-time-grid,
+  .v7-itineraire-view .iti-time-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) minmax(0,1fr) !important;
+    gap: 10px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  body.itineraire-open .iti-time-grid > *,
+  .v7-itineraire-view .iti-time-grid > *,
+  body.itineraire-open .iti-field,
+  .v7-itineraire-view .iti-field {
+    min-width: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  body.itineraire-open input,
+  body.itineraire-open button,
+  .v7-itineraire-view input,
+  .v7-itineraire-view button {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* Supprime les restes de surlignage jaune sur numéro carrosserie */
+body.line-open .bus-pill,
+body.vehicle-portrait-open .vehicle-portrait-pill,
+body.vehicle-portrait-open .vehicle-portrait-pill-label {
+  background: rgba(224,242,254,.78) !important;
+  color: #0369a1 !important;
+  border: 1px solid rgba(56,189,248,.28) !important;
+  box-shadow: none !important;
+}
+
+body.line-open .bus-pill *,
+body.vehicle-portrait-open .vehicle-portrait-pill *,
+body.vehicle-portrait-open .vehicle-portrait-pill-label * {
+  background: transparent !important;
+  color: inherit !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+/* Prochain arrêt / En approche : même code couleur partout */
+body.line-open .bus-state,
+body.vehicle-portrait-open .vehicle-portrait-state {
+  background: rgba(224,242,254,.78) !important;
+  color: #0369a1 !important;
+  border: 1px solid rgba(56,189,248,.28) !important;
+  box-shadow: none !important;
+}
+
+body.line-open .bus-state *,
+body.vehicle-portrait-open .vehicle-portrait-state * {
+  color: #0369a1 !important;
+}
+
+/* Mode sombre cohérent */
+@media (prefers-color-scheme: dark) {
+  body.line-open .bus-pill,
+  body.vehicle-portrait-open .vehicle-portrait-pill,
+  body.vehicle-portrait-open .vehicle-portrait-pill-label,
+  body.line-open .bus-state,
+  body.vehicle-portrait-open .vehicle-portrait-state {
+    background: rgba(14,165,233,.16) !important;
+    color: #7dd3fc !important;
+    border-color: rgba(125,211,252,.24) !important;
+    box-shadow: none !important;
+  }
+
+  body.line-open .bus-pill *,
+  body.vehicle-portrait-open .vehicle-portrait-pill *,
+  body.vehicle-portrait-open .vehicle-portrait-pill-label *,
+  body.line-open .bus-state *,
+  body.vehicle-portrait-open .vehicle-portrait-state * {
+    color: #7dd3fc !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+}
