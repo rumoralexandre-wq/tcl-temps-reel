@@ -1558,3 +1558,27 @@ body:not(.horaires-open) #horairesView.open {
     box-shadow: 0 12px 30px rgba(0,0,0,.40) !important;
   }
 }
+
+/* HOTFIX 20260617 — centrage parfait flèche bouton retour trafic */
+@media (max-width: 767px) {
+  body.traffic-open #trafficBack {
+    position: relative !important;
+    padding: 0 !important;
+    text-indent: -9999px !important;
+    overflow: hidden !important;
+  }
+
+  body.traffic-open #trafficBack::after {
+    position: absolute !important;
+    inset: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-indent: 0 !important;
+    content: "‹" !important;
+    font-size: 34px !important;
+    line-height: 1 !important;
+    font-weight: 900 !important;
+    transform: translateY(-1px) !important;
+  }
+}
