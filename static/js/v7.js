@@ -5478,3 +5478,62 @@ ${sections.map(offlineSectionHtml).join("")}
   window.addEventListener("load", enhanceTrafficAccordion);
   setInterval(enhanceTrafficAccordion, 800);
 })();
+
+/* HOTFIX 20260617 — Info trafic : garder les catégories ouvertes */
+(function(){
+  const KEY = "v7TrafficAccordionOpen";
+
+  function getTitle(group){
+    return (group.querySelector(".v7-traffic-group-title span")?.textContent || group.querySelector(".v7-traffic-group-title")?.textContent || "").trim();
+  }
+
+  function loadOpen(){
+    try { return new Set(JSON.parse(localStorage.getItem(KEY) || "[]")); }
+    catch(e){ return new Set(); }
+  }
+
+  function saveOpen(set){
+    try { localStorage.setItem(KEY, JSON.stringify([...set])); } catch(e){}
+  }
+
+  function applyOpenState(){
+    if(!document.body.classList.contains("traffic-open")) return;
+    const open = loadOpen();
+
+    document.querySelectorAll(".v7-traffic-group").forEach(group => {
+      const titleText = getTitle(group);
+      const title = group.querySelector(".v7-traffic-group-title");
+      const grid = group.querySelector(".v7-traffic-grid");
+      if(!titleText || !title || !grid) return;
+
+      const shouldOpen = open.has(titleText);
+      group.classList.toggle("is-open", shouldOpen);
+      title.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
+      grid.setAttribute("aria-hidden", shouldOpen ? "false" : "true");
+    });
+  }
+
+  document.addEventListener("click", function(e){
+    const title = e.target.closest && e.target.closest(".v7-traffic-group-title");
+    if(!title || !document.body.classList.contains("traffic-open")) return;
+
+    setTimeout(() => {
+      const group = title.closest(".v7-traffic-group");
+      if(!group) return;
+
+      const titleText = getTitle(group);
+      const open = loadOpen();
+
+      if(group.classList.contains("is-open")) open.add(titleText);
+      else open.delete(titleText);
+
+      saveOpen(open);
+      applyOpenState();
+    }, 80);
+  }, true);
+
+  const obs = new MutationObserver(() => setTimeout(applyOpenState, 60));
+  obs.observe(document.documentElement, {childList:true, subtree:true});
+
+  setInterval(applyOpenState, 600);
+})();
