@@ -3068,7 +3068,29 @@ document.addEventListener("click", function(e){
         });
       });
     });
-    return rows.sort((a,b) => a.sort - b.sort).slice(0, 12);
+    /*
+      Priorité temps réel :
+      si une même ligne / destination existe en théorique ET en temps réel,
+      on garde uniquement le temps réel pour éviter les doublons visuels.
+    */
+    const best = new Map();
+    rows.forEach(row => {
+      const key = `${String(row.line).toUpperCase()}|${String(row.destination).toLowerCase()}`;
+      const prev = best.get(key);
+      if(!prev){
+        best.set(key, row);
+        return;
+      }
+      if(prev.source !== "reel" && row.source === "reel"){
+        best.set(key, row);
+        return;
+      }
+      if(prev.source === row.source && row.sort < prev.sort){
+        best.set(key, row);
+      }
+    });
+
+    return [...best.values()].sort((a,b) => a.sort - b.sort).slice(0, 12);
   }
 
   async function renderNearbyHoraires(showLoading=true){
@@ -3141,7 +3163,8 @@ document.addEventListener("click", function(e){
       lastFetchAt = Date.now();
       lastStops = await fetchNearby(lat, lon);
       syncTitle();
-      if(widgetOpen) renderNearbyHoraires(true);
+      /* Refresh silencieux : ne remet plus le loader si le widget est déjà affiché */
+      if(widgetOpen) renderNearbyHoraires(false);
       if(document.body.classList.contains("autour-open")) renderAutourPanel(lastStops, lastPos);
     }catch(e){
       meta.textContent = "Arrêts proches indisponibles";
