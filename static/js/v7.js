@@ -5422,3 +5422,59 @@ ${sections.map(offlineSectionHtml).join("")}
 
   window.__v7TrafficBackFixed = true;
 })();
+
+
+/* HOTFIX 20260617 — Info trafic : catégories repliables */
+(function(){
+  function enhanceTrafficAccordion(){
+    const list = document.querySelector("#trafficList");
+    if(!list) return;
+
+    list.querySelectorAll(".v7-traffic-group").forEach(group => {
+      if(group.classList.contains("traffic-accordion-ready")) return;
+
+      group.classList.add("traffic-accordion-ready");
+      group.classList.remove("is-open");
+
+      const title = group.querySelector(".v7-traffic-group-title");
+      const grid = group.querySelector(".v7-traffic-grid");
+
+      if(title){
+        title.setAttribute("role", "button");
+        title.setAttribute("tabindex", "0");
+        title.setAttribute("aria-expanded", "false");
+      }
+      if(grid){
+        grid.setAttribute("aria-hidden", "true");
+      }
+    });
+  }
+
+  document.addEventListener("click", function(e){
+    const title = e.target.closest && e.target.closest(".v7-traffic-group-title");
+    if(!title || !document.body.classList.contains("traffic-open")) return;
+
+    const group = title.closest(".v7-traffic-group");
+    if(!group) return;
+
+    const grid = group.querySelector(".v7-traffic-grid");
+    const open = !group.classList.contains("is-open");
+
+    group.classList.toggle("is-open", open);
+    title.setAttribute("aria-expanded", open ? "true" : "false");
+    if(grid) grid.setAttribute("aria-hidden", open ? "false" : "true");
+  }, true);
+
+  document.addEventListener("keydown", function(e){
+    if(e.key !== "Enter" && e.key !== " ") return;
+    const title = e.target.closest && e.target.closest(".v7-traffic-group-title");
+    if(!title) return;
+    e.preventDefault();
+    title.click();
+  }, true);
+
+  const obs = new MutationObserver(() => enhanceTrafficAccordion());
+  obs.observe(document.documentElement, {childList:true, subtree:true});
+  window.addEventListener("load", enhanceTrafficAccordion);
+  setInterval(enhanceTrafficAccordion, 800);
+})();

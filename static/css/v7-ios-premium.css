@@ -1723,3 +1723,70 @@ body:not(.horaires-open) #horairesView.open {
   }
 }
 
+
+
+/* HOTFIX 20260617 — Info trafic : catégories fermées/dépliables */
+@media (max-width: 1024px) {
+  body.traffic-open .v7-traffic-group {
+    padding: 12px !important;
+  }
+
+  body.traffic-open .v7-traffic-group-title {
+    height: 44px !important;
+    margin: 0 !important;
+    padding: 0 12px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+
+    border-radius: 16px !important;
+    background: rgba(255,255,255,.82) !important;
+    border: 1px solid rgba(15,23,42,.08) !important;
+    box-shadow: 0 8px 20px rgba(15,23,42,.06) !important;
+
+    cursor: pointer !important;
+    user-select: none !important;
+  }
+
+  body.traffic-open .v7-traffic-group-title::after {
+    content: "⌄" !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 26px !important;
+    height: 26px !important;
+    border-radius: 999px !important;
+    background: rgba(15,23,42,.06) !important;
+    color: #0f172a !important;
+    font-size: 18px !important;
+    font-weight: 900 !important;
+    transform: rotate(-90deg) !important;
+    transition: transform .18s ease !important;
+  }
+
+  body.traffic-open .v7-traffic-group.is-open .v7-traffic-group-title {
+    margin-bottom: 8px !important;
+  }
+
+  body.traffic-open .v7-traffic-group.is-open .v7-traffic-group-title::after {
+    transform: rotate(0deg) !important;
+  }
+
+  body.traffic-open .v7-traffic-group:not(.is-open) .v7-traffic-grid {
+    display: none !important;
+  }
+}
+
+@media (max-width: 1024px) and (prefers-color-scheme: dark) {
+  body.traffic-open .v7-traffic-group-title {
+    background: rgba(17,28,46,.92) !important;
+    border-color: rgba(148,163,184,.22) !important;
+    box-shadow: 0 8px 20px rgba(0,0,0,.22) !important;
+  }
+
+  body.traffic-open .v7-traffic-group-title::after {
+    background: rgba(148,163,184,.14) !important;
+    color: #f8fafc !important;
+  }
+}
