@@ -1790,3 +1790,38 @@ body:not(.horaires-open) #horairesView.open {
     color: #f8fafc !important;
   }
 }
+
+/* HOTFIX 20260617 — Info trafic accordéon : chevron propre à droite */
+@media (max-width: 1024px) {
+  body.traffic-open .v7-traffic-group-title {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    overflow: hidden !important;
+  }
+
+  body.traffic-open .v7-traffic-group-title span {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+  }
+
+  body.traffic-open .v7-traffic-group-title::after {
+    position: static !important;
+    inset: auto !important;
+    flex: 0 0 28px !important;
+    margin-left: auto !important;
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
+    max-width: 28px !important;
+    background: rgba(15,23,42,.06) !important;
+    box-shadow: none !important;
+    border: 0 !important;
+    transform: rotate(-90deg) !important;
+  }
+
+  body.traffic-open .v7-traffic-group.is-open .v7-traffic-group-title::after {
+    transform: rotate(0deg) !important;
+  }
+}
